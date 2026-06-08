@@ -7,6 +7,7 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
+const IP = process.env.IP ?? '127.0.0.1';
 
 // 中间件
 app.use(cors());
@@ -14,5 +15,5 @@ app.use(express.json());
 
 // 启动服务
 app.listen(PORT, () => {
-  console.log(`🚀 服务运行在 http://localhost:${PORT}`);
+  console.log(`Server is running on http://${IP}:${PORT}`);
 });
