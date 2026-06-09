@@ -11,10 +11,16 @@
     "outputPath": "bin"
   },
   "scripts": {
-    "dev": "ts-node src/index.ts",
-    "build": "tsc",
+    "dev:api": "ts-node src/index.ts",
+    "dev:music": "cd qq-music-api && npm run dev",
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:music\"",
+    "build": "npm run build:music && npm run build:api && npm run copy:music",
+    "build:api": "tsc",
+    "build:music": "cd qq-music-api && npm run build",
     "start": "node dist/index.js",
-    "build:exe": "tsc && npx pkg . --target node18-win-x64 --outputPath bin/request_song_server.exe"
+    "start:music": "cd qq-music-api && npm run start",
+    "start:all": "concurrently \"npm run start\" \"npm run start:music\"",
+    "copy:music": "xcopy qq-music-api\\dist dist\\music /E /H /Y"
   },
   "keywords": [],
   "author": "",
@@ -29,6 +35,7 @@
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
     "@types/node": "^25.9.2",
+    "concurrently": "^10.0.3",
     "nodemon": "^3.1.14",
     "ts-node": "^10.9.2",
     "typescript": "^6.0.3"
