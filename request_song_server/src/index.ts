@@ -9,7 +9,6 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT ?? 3000;
 const IP = process.env.IP ?? '127.0.0.1';
-const MUSIC_API_PORT = process.env.MUSIC_API_PORT ?? 3200;
 
 // 中间件
 app.use(cors());
