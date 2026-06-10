@@ -1,38 +1,72 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>老友会桌球 - 在线点歌台</title>
-  <link rel="stylesheet" href="./style.css" />
-  <!-- 图标 -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-</head>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>老友会桌球🎱 - 在线点歌台</title>
+    <link rel="stylesheet" href="./style.css" />
+    <!-- 图标 -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css"
+    />
+  </head>
 
-<body>
-  <!-- 背景图 -->
-  <img class="background" src="/images/background.jpeg" alt="" />
+  <body>
+    <!-- 背景图 -->
+    <img class="background" src="/images/background.jpeg" alt="" />
 
-  <!-- 毛玻璃层 -->
-  <div class="glass"></div>
+    <!-- 毛玻璃层 -->
+    <div class="glass"></div>
 
-  <!-- 内容 -->
-  <div class="wrap">
-    <div class="title-wrap">
-      <div class="main-title">老友会桌球🎱</div>
-      <div class="sub-title">在线点歌台</div>
-      <div class="sub-desc">输入歌名 / 歌手，快速点歌</div>
+    <!-- 内容 -->
+    <div class="wrap">
+      <div class="title-wrap">
+        <div class="main-title">老友会桌球🎱</div>
+        <div class="sub-title">在线点歌台</div>
+        <div class="sub-desc">输入歌名 / 歌手，快速点歌</div>
+      </div>
+
+      <div class="search-wrap">
+        <i class="fa fa-search search-icon"></i>
+        <input class="search-input" placeholder="请输入你想点的歌曲" />
+        <button class="search-btn">点歌</button>
+      </div>
+
+      <div class="footer-tip">🎵 百万曲库·实时播放·随时点歌</div>
     </div>
-
-    <div class="search-wrap">
-      <i class="fa fa-search search-icon"></i>
-      <input class="search-input" placeholder="请输入你想点的歌曲" />
-      <button class="search-btn">点歌</button>
-    </div>
-
-    <div class="footer-tip">
-      🎵 百万曲库·实时播放·随时点歌
-    </div>
-  </div>
-</body>
+    <script>
+      const searchBtn = document.querySelector(".search-btn");
+      const searchInput = document.querySelector(".search-input");
+      searchBtn.addEventListener("click", () => {
+        const songName = searchInput.value;
+        if (songName) {
+          // 调用点歌接口
+          fetch("/api/request_song", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              songName: songName,
+            }),
+          })
+            .then((res) => res.json())
+            .then((data) => {
+              if (data.code === 200) {
+                // 点歌成功
+                alert("点歌成功");
+              } else {
+                // 点歌失败
+                alert(data.msg);
+              }
+            })
+            .catch((err) => {
+              console.error("点歌失败:", err);
+              alert("点歌失败，请稍后重试");
+            });
+        }
+      });
+    </script>
+  </body>
 </html>
