@@ -1,6 +1,18 @@
 import { create } from "axios";
 
-const server = create({
+export const Server = create(
+    {
+        baseURL: "http://localhost:3000",
+        timeout: 10000,
+        headers: {
+            "Content-Type": "application/json",
+        },
+        withCredentials: true,
+    }
+);
+
+
+export const MusicServer = create({
     baseURL: "http://localhost:3200",
     timeout: 10000,
     headers: {
@@ -9,7 +21,7 @@ const server = create({
     withCredentials: true,
 });
 
-server.interceptors.request.use(
+MusicServer.interceptors.request.use(
     (config) => {
         return config;
     },
@@ -17,6 +29,3 @@ server.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-
-
-export default server;

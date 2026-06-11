@@ -1,7 +1,7 @@
-import Login from "@/pages/Login";
+import RequestSongPage from "@/pages/RequestSongPage";
 
 function App() {
-  return <Login />;
+  return <RequestSongPage />;
 }
 
 export default App;

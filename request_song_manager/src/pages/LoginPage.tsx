@@ -1,6 +1,6 @@
 import { QRCode } from "antd";
 
-const Login = () => {
+const LoginPage = () => {
   return (
     <div className="w-screen h-screen flex justify-center items-center bg-white">
       <div className="w-96 h-96 flex flex-col items-center justify-center">
@@ -17,4 +17,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default LoginPage;
