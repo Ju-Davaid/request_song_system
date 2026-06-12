@@ -13,17 +13,25 @@ export const Server = create(
 
 
 export const MusicServer = create({
-    baseURL: "http://localhost:3200",
+    baseURL: "http://localhost:3001",
     timeout: 10000,
     headers: {
         "Content-Type": "application/json",
     },
-    withCredentials: true,
+    // withCredentials: true,
 });
 
 MusicServer.interceptors.request.use(
     (config) => {
         return config;
+    },
+    (error) => {
+        return Promise.reject(error);
+    }
+);
+MusicServer.interceptors.response.use(
+    (response) => {
+        return response;
     },
     (error) => {
         return Promise.reject(error);

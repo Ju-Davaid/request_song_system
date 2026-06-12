@@ -1,7 +1,8 @@
 import RequestSongPage from "@/pages/RequestSongPage";
+import LoginPage from "./pages/LoginPage";
 
 function App() {
-  return <RequestSongPage />;
+  return <LoginPage />;
 }
 
 export default App;

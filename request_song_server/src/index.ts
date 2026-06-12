@@ -4,14 +4,15 @@ import dotenv from 'dotenv';
 import { spawn } from 'child_process';
 import path from 'path';
 import requestSongRouter from './router/requestSongRouter';
-
+// console.log("qq-music-api:",a)
 
 // 加载环境变量
 dotenv.config();
+// 音乐API端口
+const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
 
 //  接入QQ音乐API
 const qqMusicPath = path.join(__dirname, '../', 'node_modules', '@sansenjian/qq-music-api', 'dist', 'app.js');
-const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
 const musicApiProcess = spawn('node', [qqMusicPath], {
   env: { PORT: musicApiPort },
   stdio: 'inherit',
