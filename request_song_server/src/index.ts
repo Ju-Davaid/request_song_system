@@ -3,10 +3,10 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { spawn } from 'child_process';
 import path from 'path';
-import requestSongRouter from './router/requestSongRouter';
-
 // 加载环境变量
 dotenv.config();
+import requestSongRouter from './router/requestSongRouter';
+import loginRouter from './router/loginRouter';
 // 音乐API端口
 const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
 
@@ -42,10 +42,10 @@ app.use(express.static(staticPath, {
 }));
 
 // 挂载请求歌曲路由
-app.use('/api', requestSongRouter);
+app.use('/api', [requestSongRouter, loginRouter]);
 
 // 所有未匹配的路由，统一返回 index.html
-app.get('*', (_req, res) => {
+app.get('/{*path}', (_req, res) => {
   res.sendFile(path.join(staticPath, 'index.html'));
 });
 

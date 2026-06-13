@@ -2,26 +2,15 @@ import { create } from "axios";
 
 export const Server = create(
     {
-        baseURL: "http://localhost:3000",
+        baseURL: "http://localhost:3000/api",
         timeout: 10000,
         headers: {
             "Content-Type": "application/json",
         },
-        withCredentials: true,
     }
 );
 
-
-export const MusicServer = create({
-    baseURL: "http://localhost:3001",
-    timeout: 10000,
-    headers: {
-        "Content-Type": "application/json",
-    },
-    // withCredentials: true,
-});
-
-MusicServer.interceptors.request.use(
+Server.interceptors.request.use(
     (config) => {
         return config;
     },
@@ -29,11 +18,9 @@ MusicServer.interceptors.request.use(
         return Promise.reject(error);
     }
 );
-MusicServer.interceptors.response.use(
-    (response) => {
-        return response;
-    },
-    (error) => {
-        return Promise.reject(error);
-    }
+
+// 响应拦截器，返回 data 字段
+Server.interceptors.response.use(
+    (response) => response.data,
+    (err) => Promise.reject(err)
 );

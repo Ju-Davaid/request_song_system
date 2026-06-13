@@ -1,7 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import MusicStation from "@/pages/music/index";
 import LoginPage from "@/pages/music/LoginPage";
-import RequestSongPage from "@/pages/RequestSongPage";
+import RequestSongPage from "@/pages";
 import StationPage from "@/pages/music/StationPage";
 
 const router = createBrowserRouter([
