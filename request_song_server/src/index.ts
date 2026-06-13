@@ -4,7 +4,6 @@ import dotenv from 'dotenv';
 import { spawn } from 'child_process';
 import path from 'path';
 import requestSongRouter from './router/requestSongRouter';
-// console.log("qq-music-api:",a)
 
 // 加载环境变量
 dotenv.config();
@@ -35,11 +34,20 @@ const IP = process.env.IP ?? '127.0.0.1';
 // 中间件
 app.use(cors());
 app.use(express.json());
+
+const staticPath = path.join(__dirname, '../public');
 // 静态文件服务
-app.use(express.static('public'));
+app.use(express.static(staticPath, {
+  maxAge: '7d'
+}));
 
 // 挂载请求歌曲路由
 app.use('/api', requestSongRouter);
+
+// 所有未匹配的路由，统一返回 index.html
+app.get('*', (_req, res) => {
+  res.sendFile(path.join(staticPath, 'index.html'));
+});
 
 // 启动服务
 app.listen(PORT, () => {

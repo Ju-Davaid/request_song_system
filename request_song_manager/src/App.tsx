@@ -1,8 +1,8 @@
-import RequestSongPage from "@/pages/RequestSongPage";
-import LoginPage from "./pages/LoginPage";
+import router from "./router";
+import { RouterProvider } from "react-router-dom";
 
 function App() {
-  return <LoginPage />;
+  return <RouterProvider router={router} />;
 }
 
 export default App;

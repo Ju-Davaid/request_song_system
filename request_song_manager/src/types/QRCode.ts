@@ -17,7 +17,11 @@ export interface CheckQrCodeStatusVO {
     refresh: boolean;
     message: string;
     session?: {
-
+        cookie: string;
+        cookieList: string[];
+        cookieObject: Record<string, string>;
+        loginUin: string;
+        uin: string;
     }
     error?: string;
 }

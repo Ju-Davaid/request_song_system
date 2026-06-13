@@ -23,6 +23,7 @@ const LoginPage = () => {
       setQrCodeStatus("scanned");
       clearInterval(inquiryTimer.current);
       inquiryTimer.current = null;
+      localStorage.setItem("cookie", JSON.stringify(qrCodeNewStatus.session));
     } else if (qrCodeNewStatus.refresh) {
       setQrCodeStatus("expired");
       clearInterval(inquiryTimer.current);
@@ -69,6 +70,7 @@ const LoginPage = () => {
           src={qrCode?.img ?? qrCodeImage}
           size={180}
           status={qrCodeStatus}
+          onReload={reloadQrCode}
         />
       </div>
     </div>
