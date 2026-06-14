@@ -6,6 +6,7 @@ interface UserInfoStore {
         username: string
         avatar: string
         cookie?: string
+        uin?: string
     } | null
     setUserInfo: (userInfo: UserInfoStore["userInfo"]) => void
 }

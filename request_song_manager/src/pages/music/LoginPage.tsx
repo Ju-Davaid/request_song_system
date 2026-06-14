@@ -35,6 +35,7 @@ const LoginPage = () => {
           username: userInfo.nickname,
           avatar: userInfo.avatar_url,
           cookie: checkRes.session.cookie,
+          uin: checkRes.session.loginUin,
         };
         console.log("登录成功:", newInfo);
         localStorage.setItem("userInfo", JSON.stringify(newInfo));

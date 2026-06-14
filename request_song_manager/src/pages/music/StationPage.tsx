@@ -9,15 +9,27 @@ import { FaPlay } from "react-icons/fa";
 import StationConfigModal from "@/components/StationConfigModal";
 import type { StationConfigModalExpose } from "@/components/StationConfigModal";
 import qqLogin from "@/assets/images/login_qq.png";
-import { useRef } from "react";
+import playerIcon1x from "@/assets/images/play_icon_1x.png";
+import playerIcon2x from "@/assets/images/player_icon_2x.png";
+import { useEffect, useRef, useState } from "react";
+// import { getUserPlayList } from "@/api";
+import MusicProgressBar from "@/components/MusicProgressBar";
+import { Tooltip } from "antd";
+import playOrderBtnList from "./data/playOrderLayoutData";
 
+/** 点歌台页面 */
 const StationPage = () => {
+  // 设置弹窗引用
   const stationConfigModalRef = useRef<StationConfigModalExpose>(null);
+  // 用户信息
   const { avatar, username } = useUserInfoStore((state) => state.userInfo);
+  // 播放顺序 (0: 列表循环, 1: 单曲循环, 2: 随机播放  3: 顺序播放)
+  const [playOrder, setPlayOrder] = useState<number>(0);
+  useEffect(() => {}, []);
   return (
     <>
+      {/* 设置弹窗 */}
       <StationConfigModal ref={stationConfigModalRef} />
-      {/* 背景层 */}
       <div className="relative w-screen min-h-screen bg-[#292a2b]">
         {/* 背景层 */}
         <div
@@ -65,8 +77,9 @@ const StationPage = () => {
           <div className="flex-1">
             <div className=""></div>
           </div>
-          {/* 底部音乐播放器械 */}
-          <div className="mx-[6%] pb-10 flex">
+          {/* 底部音乐播放器 */}
+          <div className="mx-[6%] pb-10 flex items-center">
+            {/* 音乐控制按钮 */}
             <div className="flex gap-10 items-center">
               <AiFillStepBackward
                 size={35}
@@ -80,6 +93,43 @@ const StationPage = () => {
                 size={35}
                 className="text-white cursor-pointer text-2xl opacity-80 hover:opacity-100 transition-opacity duration-300"
               />
+            </div>
+            {/* 歌曲信息 */}
+            <div className="flex-1 px-10">
+              <div className="flex w-full justify-between items-center">
+                <h1 className="text-white opacity-80 mb-3 text-sm">
+                  简单爱-周杰伦
+                </h1>
+                <div className="text-sm text-white opacity-80">
+                  00:00 / 04:30
+                </div>
+              </div>
+              <MusicProgressBar />
+            </div>
+            {/* 右侧按钮 */}
+            <div className="flex gap-4 items-center">
+              <div className="relative size-7.5">
+                {playOrderBtnList.map(
+                  ({ title, position: [x, y], size: [w, h] }, index) => (
+                    <Tooltip key={index} title={title} color="#fff">
+                      <div
+                        onClick={() =>
+                          setPlayOrder(
+                            (prev) => (prev + 1) % playOrderBtnList.length,
+                          )
+                        }
+                        style={{
+                          backgroundImage: ` image-set(url(${playerIcon1x}) 1x,url(${playerIcon2x}) 2x)`,
+                          backgroundPosition: `${x}px ${y}px`,
+                          width: `${w}px`,
+                          height: `${h}px`,
+                        }}
+                        className={`absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer opacity-80 hover:opacity-100 transition-opacity duration-300 ${playOrder !== index && "hidden"}`}
+                      ></div>
+                    </Tooltip>
+                  ),
+                )}
+              </div>
             </div>
           </div>
         </main>

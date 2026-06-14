@@ -44,14 +44,15 @@ const StationConfigModal = ({
       <Modal
         title="点歌台设置"
         closable={false}
-        // mask={false}
+        focusable={{
+          trap: false,
+          focusTriggerAfterClose: true,
+        }}
         width={600}
         centered={true}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={handleCancel}
-        cancelText="取消"
-        okText="确定"
         footer={
           <div className="flex justify-end gap-5">
             <button

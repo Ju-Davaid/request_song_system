@@ -1,5 +1,6 @@
 import { create } from "axios";
 
+
 export const Server = create(
     {
         baseURL: "http://localhost:3000/api",
@@ -12,6 +13,12 @@ export const Server = create(
 
 Server.interceptors.request.use(
     (config) => {
+        const info = localStorage.getItem("userInfo");
+        const userInfo = info ? JSON.parse(info) as any : null;
+        if (userInfo) {
+            console.log(userInfo);
+            config.headers["X-Custom-Cookie"] = userInfo.cookie;
+        }
         return config;
     },
     (error) => {

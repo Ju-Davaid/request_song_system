@@ -33,9 +33,9 @@ const requestMusicServer = async (
             default:
                 throw new Error(`不支持的请求方法: ${method}`);
         }
-    } catch (err) {
+    } catch (err:any) {
         console.error(err);
-        return ResponseViewObject.error("服务器内部错误");
+        return ResponseViewObject.error(err.message);
     }
 };
 
