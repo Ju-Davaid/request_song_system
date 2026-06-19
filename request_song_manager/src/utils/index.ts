@@ -24,3 +24,4 @@ export const getRandomNumber = (min: number, max: number): number => {
 }
 
 export { loadFont } from './loadFont';
+export * from './buildTableRenderData';

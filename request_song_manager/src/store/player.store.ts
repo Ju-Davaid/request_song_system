@@ -225,7 +225,11 @@ const usePlayerStore = create<PlayerStore>((set) => {
             return { currentTime: time };
         }),
         setMusicList: (musicList: MusicVo[]) => set(() => ({ musicList })),
-        addMusic: (music: MusicVo) => set((state) => ({ musicList: [...state.musicList, music] })),
+        addMusic: (music: MusicVo) => set((state) => {
+            const isExist = state.musicList.some((item) => item.songmid === music.songmid);
+            if (isExist) return {};
+            return { musicList: [...state.musicList, music] };
+        }),
         changeVolume: (volume: number) => set((state) => {
             if (!state.Player) return {};
             state.Player.volume = volume;

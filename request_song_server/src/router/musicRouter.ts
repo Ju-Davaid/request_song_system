@@ -51,8 +51,8 @@ musicRouter.get("/getMusicInfo", async (req, res) => {
         const songsWithSimilarity = songList.map<MusicVo>((item) => {
             const name = item.songname;
             const singer = item.singer[0].name;
-            const cover = songInfoList.find((info: any) => info.title === name && info.singer === singer)?.pic ?? "";
-
+            const cover = songInfoList.find((info: any) => info.title.includes(name) && info.singer.includes(singer))?.pic ?? "";
+            const duration = item.interval;
             // 计算相似度（综合歌名和歌手名）
             const nameSimilarity = similarAlgorithm(name, keyword as string);
             const singerSimilarity = similarAlgorithm(singer, keyword as string);
@@ -63,6 +63,7 @@ musicRouter.get("/getMusicInfo", async (req, res) => {
                 name,
                 singer,
                 songmid: item.songmid,
+                duration,
                 cover,
                 similarity,
             };
@@ -71,12 +72,15 @@ musicRouter.get("/getMusicInfo", async (req, res) => {
         // 按相似度降序排序
         songsWithSimilarity.sort((a, b) => b.similarity - a.similarity);
         const topMatch = songsWithSimilarity[0];
-        topMatch.vip = false;   
+        topMatch.vip = false;
         let url: string = (await requestMusicServer(`/getMusicPlay?songmid=${topMatch.songmid}`, "GET")).getData().data.playUrl[topMatch.songmid].url;
         if (url.trim().length === 0) {
             topMatch.vip = true;
             let res = await axios.get(`https://api.vkeys.cn/v2/music/tencent/geturl?mid=${topMatch.songmid}`)
             url = res.data.data.url;
+            if (topMatch.cover?.trim().length === 0) {
+                topMatch.cover = res.data.data.cover;
+            }
         }
         let lyric = (await requestMusicServer(`/getLyric?songmid=${topMatch.songmid}&isFormat=1`, "GET")).getData().response.lyric.lines
         if (!lyric) {

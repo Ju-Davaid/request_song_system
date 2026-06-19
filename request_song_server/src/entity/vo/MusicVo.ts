@@ -3,6 +3,7 @@ export interface MusicVo {
     singer: string;
     url?: string;
     songmid: string;
+    duration: number;
     similarity: number;
     vip?: boolean;
     cover?: string;

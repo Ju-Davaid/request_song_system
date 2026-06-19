@@ -1,14 +1,19 @@
 import { useUserInfoStore } from "@/store/userInfo.store";
-import { AiFillSetting } from "react-icons/ai";
+import { AiFillSetting, AiOutlineClear } from "react-icons/ai";
+import { MdOutlineFileDownload, MdOutlineDelete } from "react-icons/md";
 import StationConfigModal from "@/components/StationConfigModal";
 import type { StationConfigModalExpose } from "@/components/StationConfigModal";
 import qqLogin from "@/assets/images/login_qq.png";
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import MusicController from "@/components/MusicControler";
 import usePlayerStore from "@/store/player.store";
 import { notification } from "antd";
 import { getMusicInfo } from "@/api";
 import type { MusicVo } from "@/types/Music";
+import MusicList from "@/components/MusicList";
+import LoadingPage from "@/components/LoadingPage";
+import defaultCover from "@/assets/images/defalut_cover.jpg";
+import { Image } from "antd";
 
 /** 点歌台页面 */
 const StationPage = () => {
@@ -20,7 +25,7 @@ const StationPage = () => {
   // 用户信息
   const { avatar, username } = useUserInfoStore((state) => state.userInfo);
   // 音乐播放器引用
-  const musicPlayerRef = useRef<HTMLAudioElement>(null);
+  const musicPlayerRef = useRef<HTMLAudioElement>(new Audio());
   // 通知组件引用
   const [NotificationApi, NotificationContextHolder] =
     notification.useNotification();
@@ -40,6 +45,8 @@ const StationPage = () => {
   const lyricIndex = usePlayerStore((state) => state.lyricIndex);
   // 设置当前播放时间
   const setCurrentTime = usePlayerStore((state) => state.setCurrentTime);
+  // 加载状态
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
   // 音乐播放结束处理
   const handelMusicEnd = useCallback(() => {
     NotificationApi.info({
@@ -52,7 +59,7 @@ const StationPage = () => {
   // 音乐播放错误处理
   const handelMusicError = useCallback((music?: MusicVo) => {
     NotificationApi.error({
-      title: `${music?.name}播放错误`,
+      title: `《${music?.name}》播放失败`,
       duration: false,
       description: "请检查网络连接或联系管理员",
       placement: "topRight",
@@ -63,13 +70,12 @@ const StationPage = () => {
     (_music?: MusicVo, _currentTime?: number, lyricIndex?: number) => {
       if (isHoverLyric.current) return;
       if (lyricContainerRef.current) {
-        const currentLyric = lyricContainerRef.current?.querySelector(
+        const currentLyric = lyricContainerRef.current.querySelector(
           `#lyric-${lyricIndex}`,
         );
         currentLyric?.scrollIntoView({
           behavior: "smooth",
           block: "center",
-          inline: "nearest",
         });
       }
     },
@@ -87,27 +93,35 @@ const StationPage = () => {
   // 初始切换音乐
   useEffect(() => {
     Promise.all([
-      getMusicInfo("琵琶行"),
-      getMusicInfo("新地球"),
+      getMusicInfo("lonely"),
+      getMusicInfo("call you tonight"),
+      getMusicInfo("boyfriend"),
       getMusicInfo("梦回还"),
+      getMusicInfo("起风了"),
+      getMusicInfo("creeping up on you"),
+      getMusicInfo("we don't talk any more"),
+      getMusicInfo("watch me back"),
+      getMusicInfo("enemy"),
     ]).then((res) => {
-      res.forEach((item) => {
-        addMusic(item.data);
-      });
-      changeMusicByIndex(0);
+      console.log("获取音乐信息成功", res);
+      setMusicList(res.map((item) => item.data));
+      setTimeout(() => {
+        changeMusicByIndex(0);
+        setIsLoaded(true);
+      }, 1000);
     });
   }, []);
+  if (!isLoaded) return <LoadingPage />;
   return (
     <>
       {NotificationContextHolder}
-      <audio className="hidden" ref={musicPlayerRef}></audio>
       {/* 设置弹窗 */}
       <StationConfigModal ref={stationConfigModalRef} />
       <div className="relative w-screen h-screen bg-[#7c756d] overflow-hidden">
         {/* 背景层 */}
         <div
           style={{
-            backgroundImage: `url(${currentMusic?.cover})`,
+            backgroundImage: `url(${currentMusic.cover.trim().length === 0 ? defaultCover : currentMusic.cover})`,
           }}
           className="translate-z-0 w-full h-full fixed left-0 top-0 bg-no-repeat bg-cover bg-position-[50%] blur-[65px] opacity-60 bg-white"
         ></div>
@@ -148,15 +162,43 @@ const StationPage = () => {
           </header>
           {/* 内容容器 */}
           <div className="flex-1 flex pt-2">
-            <div className="flex-1 pl-12.5">
-              <div className="h-2 bg-white"></div>
+            <div className="flex-1 pl-12.5 flex flex-col">
+              {/* 操作栏 */}
+              <div className="flex text-white gap-5">
+                <div className="group flex gap-1 items-center cursor-pointer opacity-80 min-w-30.5 text-center border border-solid border-[#ffffff33] text-sm px-5.75 h-9.5 leading-9.5 rounded-sm transition-all duration-300 hover:opacity-100 hover:border-white hover:text-white">
+                  <MdOutlineFileDownload
+                    size={26}
+                    className="group-hover:opacity-100 transition-opacity duration-300 opacity-60 "
+                  />
+                  下载
+                </div>
+                <div className="group flex gap-1 items-center cursor-pointer opacity-80 min-w-30.5 text-center border border-solid border-[#ffffff33] text-sm px-5.75 h-9.5 leading-9.5 rounded-sm transition-all duration-300 hover:opacity-100 hover:border-white hover:text-white">
+                  <MdOutlineDelete
+                    size={26}
+                    className="group-hover:opacity-100 transition-opacity duration-300 opacity-60 "
+                  />
+                  删除
+                </div>
+                <div className="group flex gap-1 items-center cursor-pointer opacity-80 min-w-30.5 text-center border border-solid border-[#ffffff33] text-sm px-5.75 h-9.5 leading-9.5 rounded-sm transition-all duration-300 hover:opacity-100 hover:border-white hover:text-white">
+                  <AiOutlineClear
+                    size={26}
+                    className="group-hover:opacity-100 transition-opacity duration-300 opacity-60 "
+                  />
+                  清除
+                </div>
+              </div>
+              {/* 播放列表 */}
+              <MusicList />
             </div>
             {/* 当前播放音乐信息容器 */}
             <div className="w-75 h-full flex flex-col items-center overflow-hidden">
               {/* 当前播放音乐封面 */}
-              <img
-                className="size-50 rounded-md block"
-                src={currentMusic?.cover}
+              <Image
+                width={200}
+                height={200}
+                className="rounded-md block"
+                src={currentMusic.cover}
+                fallback={defaultCover}
                 alt=""
               />
               {/* 当前播放音乐信息 */}
@@ -174,6 +216,7 @@ const StationPage = () => {
                     "linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, hsla(0, 0%, 100%, .6) 15%, #fff 25%, #fff 75%, hsla(0, 0%, 100%, .6) 85%, hsla(0, 0%, 100%, 0))",
                   WebkitMaskImage:
                     "linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, hsla(0, 0%, 100%, .6) 15%, #fff 25%, #fff 75%, hsla(0, 0%, 100%, .6) 85%, hsla(0, 0%, 100%, 0))",
+                  scrollbarWidth: "none",
                 }}
                 className="w-full  flex-1 relative overflow-y-scroll"
               >

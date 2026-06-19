@@ -16,7 +16,7 @@ Server.interceptors.request.use(
         const info = localStorage.getItem("userInfo");
         const userInfo = info ? JSON.parse(info) as any : null;
         if (userInfo) {
-            console.log(userInfo);
+            // console.log(userInfo);
             config.headers["X-Custom-Cookie"] = userInfo.cookie;
         }
         return config;

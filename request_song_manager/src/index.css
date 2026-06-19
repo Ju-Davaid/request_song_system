@@ -1,1 +1,42 @@
 @import "tailwindcss";
+
+.music-list-scrollbar::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.music-list-scrollbar::scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+.music-list-scrollbar::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .1);
+    border-radius: 10px;
+    transition: all .3s ease-in-out;
+}
+
+.music-list-scrollbar::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, .2);
+}
+
+
+.music-list-scrollbar::scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .1);
+    border-radius: 10px;
+    transition: all .3s ease-in-out;
+}
+
+.music-list-scrollbar::scrollbar-thumb:hover {
+    background-color: rgba(0, 0, 0, .2);
+}
+
+
+.music-list-scrollbar::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+
+.music-list-scrollbar::scrollbar-track {
+    background-color: transparent;
+}

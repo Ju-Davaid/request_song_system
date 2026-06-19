@@ -9,6 +9,7 @@ export interface MusicVo {
     singer: string,
     url: string,
     lyric?: Lyric[],
+    duration?: number | string,
     vip?: boolean,
     similarity?: number,
 }
