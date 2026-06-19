@@ -11,3 +11,16 @@ export const formatSecondToTime = (seconds: number): string => {
     // 补零：不足两位前面加 0
     return `${min.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
 }
+/**
+ * 随机数
+ * @param min 最小值
+ * @param max 最大值
+ * @returns 随机数
+ */
+export const getRandomNumber = (min: number, max: number): number => {
+    // 先确保 min <= max
+    const [x, y] = min > max ? [max, min] : [min, max];
+    return Math.floor(Math.random() * (y - x + 1)) + x;
+}
+
+export { loadFont } from './loadFont';

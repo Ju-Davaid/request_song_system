@@ -1,41 +1,113 @@
-import stationBg from "@/assets/images/station_bg_2.webp";
 import { useUserInfoStore } from "@/store/userInfo.store";
 import { AiFillSetting } from "react-icons/ai";
 import StationConfigModal from "@/components/StationConfigModal";
 import type { StationConfigModalExpose } from "@/components/StationConfigModal";
 import qqLogin from "@/assets/images/login_qq.png";
-import { useEffect, useRef, useState } from "react";
-import MusicControlBar from "@/components/MusicControlBar";
-import musicList from "@/data/musicMockData";
+import { useCallback, useEffect, useRef } from "react";
+import MusicController from "@/components/MusicControler";
 import usePlayerStore from "@/store/player.store";
+import { notification } from "antd";
+import { getMusicInfo } from "@/api";
+import type { MusicVo } from "@/types/Music";
 
 /** 点歌台页面 */
 const StationPage = () => {
   // 设置弹窗引用
   const stationConfigModalRef = useRef<StationConfigModalExpose>(null);
+  // 歌词容器引用
+  const lyricContainerRef = useRef<HTMLDivElement>(null);
+  const isHoverLyric = useRef<boolean>(false);
   // 用户信息
   const { avatar, username } = useUserInfoStore((state) => state.userInfo);
+  // 音乐播放器引用
   const musicPlayerRef = useRef<HTMLAudioElement>(null);
-  const [currentMusic, setCurrentMusic] = useState(musicList[0]);
-  const changeMusic = usePlayerStore((state) => state.changeMusic);
+  // 通知组件引用
+  const [NotificationApi, NotificationContextHolder] =
+    notification.useNotification();
+  // 根据索引切换音乐
+  const changeMusicByIndex = usePlayerStore(
+    (state) => state.changeMusicByIndex,
+  );
+  // 设置音乐播放器
   const setPlayer = usePlayerStore((state) => state.setPlayer);
+  // 设置音乐列表
+  const setMusicList = usePlayerStore((state) => state.setMusicList);
+  // 当前播放音乐
+  const currentMusic = usePlayerStore((state) => state.currentMusic);
+  // 添加音乐
+  const addMusic = usePlayerStore((state) => state.addMusic);
+  // 当前歌词索引
+  const lyricIndex = usePlayerStore((state) => state.lyricIndex);
+  // 设置当前播放时间
+  const setCurrentTime = usePlayerStore((state) => state.setCurrentTime);
+  // 音乐播放结束处理
+  const handelMusicEnd = useCallback(() => {
+    NotificationApi.info({
+      title: `播放结束`,
+      duration: false,
+      description: "当前播放列表已经播放完毕",
+      placement: "topRight",
+    });
+  }, []);
+  // 音乐播放错误处理
+  const handelMusicError = useCallback((music?: MusicVo) => {
+    NotificationApi.error({
+      title: `${music?.name}播放错误`,
+      duration: false,
+      description: "请检查网络连接或联系管理员",
+      placement: "topRight",
+    });
+  }, []);
+  // 音乐播放时间更新处理
+  const handelTimeUpdate = useCallback(
+    (_music?: MusicVo, _currentTime?: number, lyricIndex?: number) => {
+      if (isHoverLyric.current) return;
+      if (lyricContainerRef.current) {
+        const currentLyric = lyricContainerRef.current?.querySelector(
+          `#lyric-${lyricIndex}`,
+        );
+        currentLyric?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+          inline: "nearest",
+        });
+      }
+    },
+    [],
+  );
+  // 设置音乐播放器实例
   useEffect(() => {
-    setPlayer(musicPlayerRef.current!);
+    setPlayer({
+      player: musicPlayerRef.current!,
+      onError: handelMusicError,
+      onEnded: handelMusicEnd,
+      onTimeUpdate: handelTimeUpdate,
+    });
   }, [setPlayer]);
+  // 初始切换音乐
   useEffect(() => {
-    changeMusic(currentMusic.url);
-  }, [changeMusic, currentMusic]);
-
+    Promise.all([
+      getMusicInfo("琵琶行"),
+      getMusicInfo("新地球"),
+      getMusicInfo("梦回还"),
+    ]).then((res) => {
+      res.forEach((item) => {
+        addMusic(item.data);
+      });
+      changeMusicByIndex(0);
+    });
+  }, []);
   return (
     <>
+      {NotificationContextHolder}
       <audio className="hidden" ref={musicPlayerRef}></audio>
       {/* 设置弹窗 */}
       <StationConfigModal ref={stationConfigModalRef} />
-      <div className="relative w-screen min-h-screen bg-[#7c756d]">
+      <div className="relative w-screen h-screen bg-[#7c756d] overflow-hidden">
         {/* 背景层 */}
         <div
           style={{
-            backgroundImage: `url(${currentMusic.cover})`,
+            backgroundImage: `url(${currentMusic?.cover})`,
           }}
           className="translate-z-0 w-full h-full fixed left-0 top-0 bg-no-repeat bg-cover bg-position-[50%] blur-[65px] opacity-60 bg-white"
         ></div>
@@ -75,11 +147,56 @@ const StationPage = () => {
             </div>
           </header>
           {/* 内容容器 */}
-          <div className="flex-1">
-            <div className=""></div>
+          <div className="flex-1 flex pt-2">
+            <div className="flex-1 pl-12.5">
+              <div className="h-2 bg-white"></div>
+            </div>
+            {/* 当前播放音乐信息容器 */}
+            <div className="w-75 h-full flex flex-col items-center overflow-hidden">
+              {/* 当前播放音乐封面 */}
+              <img
+                className="size-50 rounded-md block"
+                src={currentMusic?.cover}
+                alt=""
+              />
+              {/* 当前播放音乐信息 */}
+              <div className="mt-4 text-center text-sm opacity-50 text-white flex flex-col gap-2 ">
+                <div>歌曲名：{currentMusic?.name}</div>
+                <div>歌手：{currentMusic?.singer}</div>
+              </div>
+              {/* 歌词容器 */}
+              <div
+                ref={lyricContainerRef}
+                onMouseEnter={() => (isHoverLyric.current = true)}
+                onMouseLeave={() => (isHoverLyric.current = false)}
+                style={{
+                  maskImage:
+                    "linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, hsla(0, 0%, 100%, .6) 15%, #fff 25%, #fff 75%, hsla(0, 0%, 100%, .6) 85%, hsla(0, 0%, 100%, 0))",
+                  WebkitMaskImage:
+                    "linear-gradient(180deg, hsla(0, 0%, 100%, 0) 0, hsla(0, 0%, 100%, .6) 15%, #fff 25%, #fff 75%, hsla(0, 0%, 100%, .6) 85%, hsla(0, 0%, 100%, 0))",
+                }}
+                className="w-full  flex-1 relative overflow-y-scroll"
+              >
+                <div className="w-full py-10 absolute left-0 flex flex-col  gap-1 pr-2">
+                  {currentMusic?.lyric?.map((item, index) => (
+                    <div
+                      style={{
+                        color: lyricIndex === index ? "#31c27c" : "#fff",
+                      }}
+                      onClick={() => setCurrentTime(item.time / 1000)}
+                      id={`lyric-${index}`}
+                      key={index}
+                      className={`text-[14px] select-none cursor-pointer text-white opacity-50 text-center py-1 transition-opacity duration-300 ${lyricIndex === index && "opacity-100"}`}
+                    >
+                      {item.txt}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
           {/* 底部音乐播放器 */}
-          <MusicControlBar />
+          <MusicController />
         </main>
       </div>
     </>

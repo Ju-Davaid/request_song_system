@@ -1,7 +1,7 @@
 /**
  * 加载飞波正点体字体
  */
-const loadFont = async () => {
+export const loadFont = async () => {
     const font = new FontFace(
         'HuaWenFont', // 字体名称，后续统一用这个
         // 路径 + 修正 format：ttf 对应 truetype
@@ -16,5 +16,3 @@ const loadFont = async () => {
         console.error('❌ 华文琥珀加载失败：', err);
     }
 };
-
-export default loadFont;

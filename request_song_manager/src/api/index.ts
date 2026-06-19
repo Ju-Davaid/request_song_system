@@ -11,3 +11,4 @@ export const checkQrCodeStatus = (checkQrCodeStatusDto: CheckQrCodeStatusDTO) =>
 export const getUserInfo = (qq: string) => Server.get<QQUserInfoVo>(`/userInfo?qq=${qq}`);
 // /getUserPlaylists?uin=123456789&offset=0&limit=10
 export const getUserPlayList = ({ uin, offset = 0, limit = 30 }) => Server.get(`/user/getUserPlaylists?uin=${uin}&offset=${offset}&limit=${limit}`);
+export const getMusicInfo = (keyword: string) => Server.get(`/getMusicInfo?keyword=${keyword}`);

@@ -5,15 +5,16 @@ import { spawn } from 'child_process';
 import path from 'path';
 // 加载环境变量
 dotenv.config();
-import requestSongRouter from './router/requestSongRouter';
-import loginRouter from './router/loginRouter';
+import musicRouter from './router/musicRouter';
+import userRouter from './router/userRouter';
 // 音乐API端口
 const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
 
 //  接入QQ音乐API
 const qqMusicPath = path.join(__dirname, '../', 'node_modules', '@sansenjian/qq-music-api', 'dist', 'app.js');
+const musicApiIP = process.env.MUSIC_API_IP ?? '127.0.0.1';
 const musicApiProcess = spawn('node', [qqMusicPath], {
-  env: { PORT: musicApiPort },
+  env: { PORT: musicApiPort, IP: musicApiIP },
   stdio: 'inherit',
 });
 
@@ -42,7 +43,7 @@ app.use(express.static(staticPath, {
 }));
 
 // 挂载请求歌曲路由
-app.use('/api', [requestSongRouter, loginRouter]);
+app.use('/api', [musicRouter, userRouter]);
 
 // 所有未匹配的路由，统一返回 index.html
 app.get('/{*path}', (_req, res) => {

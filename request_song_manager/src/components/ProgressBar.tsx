@@ -1,8 +1,18 @@
 import { useState, type FC, useRef, useEffect, useCallback } from "react";
-
 interface ProgressBarProps {
+  /** 进度条值
+   * @type number
+   * @description 进度条的当前值，范围为0-100
+   * @default 0
+   */
   value?: number;
+  /** 进度条值改变时触发
+   * @param value 进度条值
+   */
   onChange?: (value: number) => void;
+  /** 进度条拖拽完成时触发
+   * @param value 进进度条值
+   */
   onChangeComplete?: (value: number) => void;
 }
 
@@ -15,10 +25,12 @@ const ProgressBar: FC<ProgressBarProps> = ({
   const [internalProgress, setInternalProgress] = useState(value);
   const [isDragging, setIsDragging] = useState(false);
 
-  // 同步外部 value
+  // 同步外部 value（拖拽时不更新）
   useEffect(() => {
-    setInternalProgress(value);
-  }, [value]);
+    if (!isDragging) {
+      setInternalProgress(value);
+    }
+  }, [value, isDragging]);
 
   // 更新进度并触发 onChange
   const updateProgress = useCallback(
