@@ -22,6 +22,11 @@ interface PlayerStore {
     volume: number
     currentTime: number
     duration: number
+    isCleanMode: boolean
+    /**
+     * 切换是否纯净模式
+     */
+    toggleCleanMode: () => void
     /**
      * 设置当前播放时间
      * @param time 时间
@@ -81,6 +86,13 @@ const usePlayerStore = create<PlayerStore>((set) => {
         volume: 0.5,
         currentTime: 0,
         duration: 0,
+        isCleanMode: false,
+        /**
+         * 切换是否纯净模式
+         */
+        toggleCleanMode: () => {
+            set((state) => ({ isCleanMode: !state.isCleanMode }));
+        },
         setPlayer: ({ player, onEnded, onDurationChange, onTimeUpdate, onError }) => {
             // 移除旧的监听器
             if (boundTimeUpdate) {

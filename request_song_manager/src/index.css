@@ -1,42 +1,38 @@
 @import "tailwindcss";
 
-.music-list-scrollbar::-webkit-scrollbar {
-    width: 10px;
-    height: 10px;
+/* 全局主题变量 */
+@theme {
+  --color-primary: #31c27c;
+  --color-secondary: #27a25a;
 }
 
-.music-list-scrollbar::scrollbar {
-    width: 10px;
-    height: 10px;
-}
+@utils {
+  /* 文字主色 */
+  .text-primary {
+    color: var(--color-primary);
+  }
+  /* hover文字变色 */
+  .hover:text-primary {
+    @variant hover;
+    color: var(--color-primary-hover);
+  }
 
-.music-list-scrollbar::-webkit-scrollbar-thumb {
-    background-color: rgba(0, 0, 0, .1);
-    border-radius: 10px;
-    transition: all .3s ease-in-out;
-}
+  /* 背景主色 */
+  .bg-primary {
+    background-color: var(--color-primary);
+  }
+  /* hover背景变色 */
+  .hover:bg-secondary {
+    @variant hover;
+    background-color: var(--color-secondary);
+  }
 
-.music-list-scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, .2);
-}
-
-
-.music-list-scrollbar::scrollbar-thumb {
-    background-color: rgba(0, 0, 0, .1);
-    border-radius: 10px;
-    transition: all .3s ease-in-out;
-}
-
-.music-list-scrollbar::scrollbar-thumb:hover {
-    background-color: rgba(0, 0, 0, .2);
-}
-
-
-.music-list-scrollbar::-webkit-scrollbar-track {
-    background-color: transparent;
-}
-
-
-.music-list-scrollbar::scrollbar-track {
-    background-color: transparent;
+  /* 边框主色 */
+  .border-primary {
+    border-color: var(--color-primary);
+  }
+  .hover:border-secondary {
+    @variant hover;
+    border-color: var(--color-secondary);
+  }
 }

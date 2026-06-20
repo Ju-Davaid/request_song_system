@@ -1,19 +1,26 @@
 import { useUserInfoStore } from "@/store/userInfo.store";
-import { AiFillSetting, AiOutlineClear } from "react-icons/ai";
-import { MdOutlineFileDownload, MdOutlineDelete } from "react-icons/md";
+import {
+  AiFillSetting,
+  AiOutlineClear,
+  AiOutlineSearch,
+  AiOutlineExpand,
+} from "react-icons/ai";
+import { FaListUl } from "react-icons/fa";
 import StationConfigModal from "@/components/StationConfigModal";
 import type { StationConfigModalExpose } from "@/components/StationConfigModal";
 import qqLogin from "@/assets/images/login_qq.png";
 import { useCallback, useEffect, useRef, useState } from "react";
-import MusicController from "@/components/MusicControler";
+import MusicController from "@/components/MusicController";
 import usePlayerStore from "@/store/player.store";
 import { notification } from "antd";
 import { getMusicInfo } from "@/api";
 import type { MusicVo } from "@/types/Music";
 import MusicList from "@/components/MusicList";
 import LoadingPage from "@/components/LoadingPage";
-import defaultCover from "@/assets/images/defalut_cover.jpg";
-import { Image } from "antd";
+import { Image, Input, Popconfirm } from "antd";
+import BlurBackground from "@/components/BlurBackground";
+import defaultCover from "@/assets/images/default_cover.jpg";
+import { AnimatePresence } from "motion/react";
 
 /** 点歌台页面 */
 const StationPage = () => {
@@ -74,7 +81,7 @@ const StationPage = () => {
           `#lyric-${lyricIndex}`,
         );
         currentLyric?.scrollIntoView({
-          behavior: "smooth",
+          behavior: lyricIndex > 0 ? "smooth" : "instant",
           block: "center",
         });
       }
@@ -96,44 +103,51 @@ const StationPage = () => {
       getMusicInfo("lonely"),
       getMusicInfo("call you tonight"),
       getMusicInfo("boyfriend"),
-      getMusicInfo("梦回还"),
-      getMusicInfo("起风了"),
       getMusicInfo("creeping up on you"),
-      getMusicInfo("we don't talk any more"),
-      getMusicInfo("watch me back"),
-      getMusicInfo("enemy"),
+      getMusicInfo("watch me work"),
+      getMusicInfo("答案"),
     ]).then((res) => {
       console.log("获取音乐信息成功", res);
-      setMusicList(res.map((item) => item.data));
+      setMusicList([...res.map((item) => item.data)]);
       setTimeout(() => {
         changeMusicByIndex(0);
         setIsLoaded(true);
       }, 1000);
     });
   }, []);
-  if (!isLoaded) return <LoadingPage />;
   return (
     <>
+      <LoadingPage isVisible={!isLoaded} />
       {NotificationContextHolder}
       {/* 设置弹窗 */}
       <StationConfigModal ref={stationConfigModalRef} />
       <div className="relative w-screen h-screen bg-[#7c756d] overflow-hidden">
         {/* 背景层 */}
-        <div
-          style={{
-            backgroundImage: `url(${currentMusic.cover.trim().length === 0 ? defaultCover : currentMusic.cover})`,
-          }}
-          className="translate-z-0 w-full h-full fixed left-0 top-0 bg-no-repeat bg-cover bg-position-[50%] blur-[65px] opacity-60 bg-white"
-        ></div>
+        <BlurBackground imageSrc={currentMusic?.cover} />
         {/* 遮罩层 */}
         <div className="z-2 w-full h-full fixed left-0 top-0 bg-[rgba(0,0,0,0.35)]"></div>
         {/* 内容层 */}
         <main className="z-3 w-full h-full fixed left-0 top-0 flex flex-col">
           {/* 头部容器 */}
           <header className="flex p-5 justify-between items-center text-white">
-            {/* 标题 */}
-            <div className="text-2xl font-[HuaWenFont] opacity-50">
-              老友会点歌台
+            {/* 头部队容器左侧部分 */}
+            <div className="flex items-center">
+              <div className="text-2xl font-[HuaWenFont] opacity-50 mr-10">
+                老友会点歌台
+              </div>
+              <Input
+                allowClear={true}
+                classNames={{
+                  root: "w-75! rounded-full!  bg-[rgba(0,0,0,0.3)]! outline-0! border-[#ffffff33]!",
+                  input:
+                    "text-white! opacity-50 placeholder:text-white! placeholder:text-sm!",
+                  clear: "text-white! opacity-50",
+                }}
+                prefix={
+                  <AiOutlineSearch className="text-white opacity-50 text-xl" />
+                }
+                placeholder="搜索歌曲"
+              />
             </div>
             {/* 用户信息和配置容器 */}
             <div className="flex gap-4 items-center">
@@ -164,27 +178,35 @@ const StationPage = () => {
           <div className="flex-1 flex pt-2">
             <div className="flex-1 pl-12.5 flex flex-col">
               {/* 操作栏 */}
-              <div className="flex text-white gap-5">
-                <div className="group flex gap-1 items-center cursor-pointer opacity-80 min-w-30.5 text-center border border-solid border-[#ffffff33] text-sm px-5.75 h-9.5 leading-9.5 rounded-sm transition-all duration-300 hover:opacity-100 hover:border-white hover:text-white">
-                  <MdOutlineFileDownload
-                    size={26}
-                    className="group-hover:opacity-100 transition-opacity duration-300 opacity-60 "
-                  />
-                  下载
+              <div className="grid grid-cols-5">
+                <div className="flex gap-2 items-center justify-center text-white opacity-50 transition-opacity duration-300 hover:opacity-100 cursor-pointer">
+                  <FaListUl /> 播放列表
                 </div>
-                <div className="group flex gap-1 items-center cursor-pointer opacity-80 min-w-30.5 text-center border border-solid border-[#ffffff33] text-sm px-5.75 h-9.5 leading-9.5 rounded-sm transition-all duration-300 hover:opacity-100 hover:border-white hover:text-white">
-                  <MdOutlineDelete
-                    size={26}
-                    className="group-hover:opacity-100 transition-opacity duration-300 opacity-60 "
-                  />
-                  删除
-                </div>
-                <div className="group flex gap-1 items-center cursor-pointer opacity-80 min-w-30.5 text-center border border-solid border-[#ffffff33] text-sm px-5.75 h-9.5 leading-9.5 rounded-sm transition-all duration-300 hover:opacity-100 hover:border-white hover:text-white">
-                  <AiOutlineClear
-                    size={26}
-                    className="group-hover:opacity-100 transition-opacity duration-300 opacity-60 "
-                  />
-                  清除
+                <div className="col-start-5 col-end-6  text-white opacity-50 transition-opacity duration-300 hover:opacity-100">
+                  <Popconfirm
+                    title="清空列表"
+                    description="确定清空播放列表吗？"
+                    onConfirm={() => {
+                      setMusicList([]);
+                    }}
+                    okButtonProps={{
+                      classNames: {
+                        root: "bg-primary! text-white hover:bg-secondary!",
+                      },
+                    }}
+                    cancelButtonProps={{
+                      classNames: {
+                        root: "text-primary hover:text-secondary!",
+                      },
+                    }}
+                    okText="是"
+                    cancelText="否"
+                  >
+                    <div className="flex gap-2 items-center justify-center cursor-pointer">
+                      <AiOutlineClear />
+                      清空列表
+                    </div>
+                  </Popconfirm>
                 </div>
               </div>
               {/* 播放列表 */}
@@ -193,14 +215,21 @@ const StationPage = () => {
             {/* 当前播放音乐信息容器 */}
             <div className="w-75 h-full flex flex-col items-center overflow-hidden">
               {/* 当前播放音乐封面 */}
-              <Image
-                width={200}
-                height={200}
-                className="rounded-md block"
-                src={currentMusic.cover}
-                fallback={defaultCover}
-                alt=""
-              />
+              <div className="relative w-50 h-50 rounded-md overflow-hidden">
+                <Image
+                  width={200}
+                  height={200}
+                  className=" block"
+                  preview={false}
+                  src={
+                    !Boolean(currentMusic?.cover)
+                      ? defaultCover
+                      : currentMusic.cover
+                  }
+                  fallback={defaultCover}
+                  alt=""
+                />
+              </div>
               {/* 当前播放音乐信息 */}
               <div className="mt-4 text-center text-sm opacity-50 text-white flex flex-col gap-2 ">
                 <div>歌曲名：{currentMusic?.name}</div>

@@ -1,9 +1,11 @@
 import type { MusicVo } from "@/types/Music";
 import { formatSecondToTime } from ".";
 import playingImage from "@/assets/images/playing.gif";
+import { IoIosMore } from "react-icons/io";
+
 
 export interface DataType extends MusicVo {
-  key: number;
+  order: number;
 }
 
 export interface ColumnType {
@@ -16,14 +18,14 @@ export interface ColumnType {
 export const buildTableRenderData = (musicList: MusicVo[]) => {
   const dataSource: DataType[] = musicList.map((item, index) => ({
     ...item,
-    key: index + 1,
+    order: index + 1,
     duration: formatSecondToTime(item.duration as number),
   }));
   const columns = [
     {
       title: "序号",
-      dataIndex: "key",
-      key: "key",
+      dataIndex: "order",
+      key: "order",
     },
     {
       title: "歌曲",
@@ -51,6 +53,16 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
       title: "时长",
       dataIndex: "duration",
       key: "duration",
+    },
+    {
+      title: "操作",
+      dataIndex: "operation",
+      key: "operation",
+      render: (_item: DataType) => (
+        <div className="flex gap-2 items-center justify-center text-white">
+          <IoIosMore className="text-2xl cursor-pointer" />
+        </div>
+      ),
     },
   ];
   return { dataSource, columns };
