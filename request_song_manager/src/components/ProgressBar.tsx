@@ -1,23 +1,14 @@
 import { useState, type FC, useRef, useEffect, useCallback } from "react";
 interface ProgressBarProps {
-  /** 进度条值
-   * @type number
-   * @description 进度条的当前值，范围为0-100
-   * @default 0
-   */
   value?: number;
-  /** 进度条值改变时触发
-   * @param value 进度条值
-   */
+  className?: string;
   onChange?: (value: number) => void;
-  /** 进度条拖拽完成时触发
-   * @param value 进进度条值
-   */
   onChangeComplete?: (value: number) => void;
 }
 
 const ProgressBar: FC<ProgressBarProps> = ({
   value = 0,
+  className = "",
   onChange,
   onChangeComplete,
 }) => {
@@ -77,7 +68,7 @@ const ProgressBar: FC<ProgressBarProps> = ({
   }, [isDragging, internalProgress, onChangeComplete, updateProgress]);
 
   return (
-    <div className="w-full">
+    <div className={`w-full ${className}`}>
       {/* 进度条容器 */}
       <div
         ref={progressRef}

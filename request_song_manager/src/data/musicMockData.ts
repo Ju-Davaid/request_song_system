@@ -10,6 +10,7 @@ const musicList: MusicVo[] = [
         name: "恋人",
         singer: "李荣浩",
         songmid: "001auUcH4WQs2V",
+        duration:275,
         url: music1,
     },
 ]

@@ -12,3 +12,5 @@ export const getUserInfo = (qq: string) => Server.get<QQUserInfoVo>(`/userInfo?q
 // /getUserPlaylists?uin=123456789&offset=0&limit=10
 export const getUserPlayList = ({ uin, offset = 0, limit = 30 }) => Server.get(`/user/getUserPlaylists?uin=${uin}&offset=${offset}&limit=${limit}`);
 export const getMusicInfo = (keyword: string) => Server.get(`/getMusicInfo?keyword=${keyword}`);
+export const getSearchResult = (keyword: string) => Server.get(`/search?keyword=${keyword}`);
+export const getMusicPlayUrl = (songmid: string) => Server.get(`/getMusicUrl?songmid=${songmid}`);

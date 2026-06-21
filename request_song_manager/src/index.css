@@ -4,23 +4,36 @@
 @theme {
   --color-primary: #31c27c;
   --color-secondary: #27a25a;
+  --dark-primary: #29292B;
+  --dark-secondary: #353537;
 }
 
 @utils {
+
   /* 文字主色 */
   .text-primary {
     color: var(--color-primary);
   }
+
   /* hover文字变色 */
   .hover:text-primary {
     @variant hover;
-    color: var(--color-primary-hover);
+    color: var(--color-primary);
   }
 
   /* 背景主色 */
   .bg-primary {
     background-color: var(--color-primary);
   }
+
+  .bg-dark-primary {
+    background-color: var(--dark-primary);
+  }
+
+  .bg-dark-secondary {
+    background-color: var(--dark-secondary);
+  }
+
   /* hover背景变色 */
   .hover:bg-secondary {
     @variant hover;
@@ -31,6 +44,7 @@
   .border-primary {
     border-color: var(--color-primary);
   }
+
   .hover:border-secondary {
     @variant hover;
     border-color: var(--color-secondary);

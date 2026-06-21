@@ -1,23 +1,20 @@
-import { useImperativeHandle, useState } from "react";
+import { useImperativeHandle, useState, type FC } from "react";
 import { Modal } from "antd";
 
-export interface StationConfigModalExpose {
+export interface MyModalExpose {
   show: () => void;
   ok: () => void;
   cancel: () => void;
 }
 
-interface StationConfigModalProps {
-  ref: React.RefObject<StationConfigModalExpose>;
+interface MyModalProps {
+  ref: React.RefObject<MyModalExpose>;
   onOk?: () => void;
   onCancel?: () => void;
+  title: string;
 }
 
-const StationConfigModal = ({
-  ref,
-  onOk,
-  onCancel,
-}: StationConfigModalProps) => {
+const MyModal: FC<MyModalProps> = ({ ref, onOk, onCancel, title }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -42,7 +39,7 @@ const StationConfigModal = ({
   return (
     <>
       <Modal
-        title="点歌台设置"
+        title={title}
         closable={false}
         focusable={{
           trap: false,
@@ -77,4 +74,4 @@ const StationConfigModal = ({
     </>
   );
 };
-export default StationConfigModal;
+export default MyModal;

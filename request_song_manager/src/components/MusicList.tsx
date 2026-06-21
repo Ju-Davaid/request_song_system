@@ -1,6 +1,6 @@
 import usePlayerStore from "@/store/player.store";
 import { buildTableRenderData, type DataType } from "@/utils";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import { List } from "antd";
 import VirtualList from "@rc-component/virtual-list";
 import Empty from "./Empty";
@@ -8,7 +8,10 @@ import Empty from "./Empty";
 const MusicList = () => {
   const musicList = usePlayerStore((state) => state.musicList);
   const currentMusic = usePlayerStore((state) => state.currentMusic);
-  const { dataSource, columns } = buildTableRenderData(musicList);
+  const { dataSource, columns } = useMemo(
+    () => buildTableRenderData(musicList),
+    [musicList],
+  );
   const [checkedList, setCheckedList] = useState<string[]>([]);
   const dataContainerRef = useRef<HTMLDivElement>(null);
 
@@ -63,14 +66,12 @@ const MusicList = () => {
             >
               {(item: DataType) => (
                 <List.Item key={item.songmid}>
-                  <div
-                    className="grid grid-cols-5 w-full text-center transition-colors"
-                  >
+                  <div className="grid grid-cols-5 w-full text-center transition-colors">
                     {/* 数据单元格 */}
                     {columns.map((column) => (
                       <div
                         key={column.dataIndex}
-                        className={`line-clamp-1  text-white py-3 px-2 transition-opacity duration-300 ${
+                        className={`text-white py-3 px-2 transition-opacity duration-300${
                           (
                             currentMusic
                               ? currentMusic?.songmid === item.songmid
@@ -81,11 +82,11 @@ const MusicList = () => {
                         }`}
                       >
                         {column.render?.(
-                          item,
-                          currentMusic
-                            ? currentMusic?.songmid === item.songmid
-                            : false,
-                        ) ?? item[column.dataIndex]}
+                            item,
+                            currentMusic
+                              ? currentMusic?.songmid === item.songmid
+                              : false,
+                          ) ?? item[column.dataIndex]}
                       </div>
                     ))}
                   </div>

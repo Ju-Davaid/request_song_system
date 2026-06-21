@@ -7,9 +7,16 @@ export interface MusicVo {
     name: string,
     songmid?: string,
     singer: string,
-    url: string,
+    url?: string,
     lyric?: Lyric[],
-    duration?: number | string,
+    duration?: number,
     vip?: boolean,
     similarity?: number,
+}
+
+export interface SearchVo extends MusicVo {
+    highlight: {
+        name: string;
+        singer: string;
+    };
 }

@@ -9,3 +9,10 @@ export interface MusicVo {
     cover?: string;
     lyric?: string;
 }
+
+export interface SearchVo extends MusicVo {
+    highlight: {
+        name: string;
+        singer: string;
+    };
+}

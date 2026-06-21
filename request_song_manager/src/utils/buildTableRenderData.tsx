@@ -3,7 +3,6 @@ import { formatSecondToTime } from ".";
 import playingImage from "@/assets/images/playing.gif";
 import { IoIosMore } from "react-icons/io";
 
-
 export interface DataType extends MusicVo {
   order: number;
 }
@@ -19,7 +18,6 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
   const dataSource: DataType[] = musicList.map((item, index) => ({
     ...item,
     order: index + 1,
-    duration: formatSecondToTime(item.duration as number),
   }));
   const columns = [
     {
@@ -32,7 +30,10 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
       dataIndex: "name",
       key: "name",
       render: (item: DataType, isPlaying: boolean = false) => (
-        <div className="flex gap-2 items-center justify-center text-white">
+        <div
+          title={item.name}
+          className="flex gap-2 items-center justify-center text-white"
+        >
           {isPlaying && (
             <img
               src={playingImage}
@@ -40,7 +41,9 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
               className="size-2.5 object-cover"
             />
           )}
-          {item.name}
+          {item.name.length > 10
+            ? item.name.substring(0, 20) + "..."
+            : item.name}
         </div>
       ),
     },
@@ -53,6 +56,7 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
       title: "时长",
       dataIndex: "duration",
       key: "duration",
+      render: (item: DataType) => formatSecondToTime(item.duration as number),
     },
     {
       title: "操作",

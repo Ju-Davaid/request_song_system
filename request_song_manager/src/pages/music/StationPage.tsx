@@ -1,31 +1,27 @@
 import { useUserInfoStore } from "@/store/userInfo.store";
-import {
-  AiFillSetting,
-  AiOutlineClear,
-  AiOutlineSearch,
-  AiOutlineExpand,
-} from "react-icons/ai";
+import { AiFillSetting, AiOutlineClear, AiOutlineSearch } from "react-icons/ai";
 import { FaListUl } from "react-icons/fa";
-import StationConfigModal from "@/components/StationConfigModal";
-import type { StationConfigModalExpose } from "@/components/StationConfigModal";
+import MyModal from "@/components/MyModal";
+import type { MyModalExpose } from "@/components/MyModal";
 import qqLogin from "@/assets/images/login_qq.png";
 import { useCallback, useEffect, useRef, useState } from "react";
 import MusicController from "@/components/MusicController";
 import usePlayerStore from "@/store/player.store";
 import { notification } from "antd";
-import { getMusicInfo } from "@/api";
+// import { getMusicInfo } from "@/api";
 import type { MusicVo } from "@/types/Music";
 import MusicList from "@/components/MusicList";
 import LoadingPage from "@/components/LoadingPage";
-import { Image, Input, Popconfirm } from "antd";
+import { Image, Popconfirm } from "antd";
 import BlurBackground from "@/components/BlurBackground";
 import defaultCover from "@/assets/images/default_cover.jpg";
-import { AnimatePresence } from "motion/react";
+import musicList from "@/data/musicMockData";
+import Search from "@/components/Search";
 
 /** 点歌台页面 */
 const StationPage = () => {
   // 设置弹窗引用
-  const stationConfigModalRef = useRef<StationConfigModalExpose>(null);
+  const myModalRef = useRef<MyModalExpose>(null);
   // 歌词容器引用
   const lyricContainerRef = useRef<HTMLDivElement>(null);
   const isHoverLyric = useRef<boolean>(false);
@@ -47,7 +43,7 @@ const StationPage = () => {
   // 当前播放音乐
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   // 添加音乐
-  const addMusic = usePlayerStore((state) => state.addMusic);
+  // const addMusic = usePlayerStore((state) => state.addMusic);
   // 当前歌词索引
   const lyricIndex = usePlayerStore((state) => state.lyricIndex);
   // 设置当前播放时间
@@ -99,28 +95,29 @@ const StationPage = () => {
   }, [setPlayer]);
   // 初始切换音乐
   useEffect(() => {
-    Promise.all([
-      getMusicInfo("lonely"),
-      getMusicInfo("call you tonight"),
-      getMusicInfo("boyfriend"),
-      getMusicInfo("creeping up on you"),
-      getMusicInfo("watch me work"),
-      getMusicInfo("答案"),
-    ]).then((res) => {
-      console.log("获取音乐信息成功", res);
-      setMusicList([...res.map((item) => item.data)]);
-      setTimeout(() => {
-        changeMusicByIndex(0);
-        setIsLoaded(true);
-      }, 1000);
-    });
+    // Promise.all([
+    //   getMusicInfo("答案"),
+    //   getMusicInfo("犯贱"),
+    //   getMusicInfo("等下完这场雨后弦"),
+    //   getMusicInfo("素颜"),
+    // ]).then((res) => {
+    //   console.log("获取音乐信息成功", res);
+    //   setMusicList([...res.map((item) => item.data)]);
+    //   setTimeout(() => {
+    //     changeMusicByIndex(0);
+    //     setIsLoaded(true);
+    //   }, 1000);
+    // });
+    setTimeout(() => {
+      setIsLoaded(true);
+    }, 1000);
   }, []);
   return (
     <>
       <LoadingPage isVisible={!isLoaded} />
       {NotificationContextHolder}
       {/* 设置弹窗 */}
-      <StationConfigModal ref={stationConfigModalRef} />
+      <MyModal ref={myModalRef} title="设置" />
       <div className="relative w-screen h-screen bg-[#7c756d] overflow-hidden">
         {/* 背景层 */}
         <BlurBackground imageSrc={currentMusic?.cover} />
@@ -135,19 +132,7 @@ const StationPage = () => {
               <div className="text-2xl font-[HuaWenFont] opacity-50 mr-10">
                 老友会点歌台
               </div>
-              <Input
-                allowClear={true}
-                classNames={{
-                  root: "w-75! rounded-full!  bg-[rgba(0,0,0,0.3)]! outline-0! border-[#ffffff33]!",
-                  input:
-                    "text-white! opacity-50 placeholder:text-white! placeholder:text-sm!",
-                  clear: "text-white! opacity-50",
-                }}
-                prefix={
-                  <AiOutlineSearch className="text-white opacity-50 text-xl" />
-                }
-                placeholder="搜索歌曲"
-              />
+              <Search />
             </div>
             {/* 用户信息和配置容器 */}
             <div className="flex gap-4 items-center">
@@ -169,7 +154,7 @@ const StationPage = () => {
               </div>
               {/* 设置 */}
               <AiFillSetting
-                onClick={() => stationConfigModalRef.current?.show()}
+                onClick={() => myModalRef.current?.show()}
                 className="cursor-pointer text-2xl opacity-50 hover:opacity-100 transition-opacity duration-300"
               />
             </div>
@@ -179,9 +164,6 @@ const StationPage = () => {
             <div className="flex-1 pl-12.5 flex flex-col">
               {/* 操作栏 */}
               <div className="grid grid-cols-5">
-                <div className="flex gap-2 items-center justify-center text-white opacity-50 transition-opacity duration-300 hover:opacity-100 cursor-pointer">
-                  <FaListUl /> 播放列表
-                </div>
                 <div className="col-start-5 col-end-6  text-white opacity-50 transition-opacity duration-300 hover:opacity-100">
                   <Popconfirm
                     title="清空列表"

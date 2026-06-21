@@ -16,7 +16,7 @@ userRouter.post('/checkQQLoginQr', async (req, res) => {
 })
 userRouter.get('/userInfo', async (req, res) => {
     const { qq } = req.query
-    if (!qq) {
+    if (!qq) {          
         res.status(400).send(ResponseViewObject.error('qq is required'));
         return;
     }
