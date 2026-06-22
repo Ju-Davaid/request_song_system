@@ -71,7 +71,7 @@ const MusicList = () => {
                     {columns.map((column) => (
                       <div
                         key={column.dataIndex}
-                        className={`text-white py-3 px-2 transition-opacity duration-300${
+                        className={`text-white py-3 px-2 transition-opacity duration-300 ${
                           (
                             currentMusic
                               ? currentMusic?.songmid === item.songmid

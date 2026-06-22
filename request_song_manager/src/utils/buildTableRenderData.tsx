@@ -3,6 +3,7 @@ import { formatSecondToTime } from ".";
 import playingImage from "@/assets/images/playing.gif";
 import { IoIosMore } from "react-icons/io";
 
+
 export interface DataType extends MusicVo {
   order: number;
 }
@@ -42,7 +43,7 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
             />
           )}
           {item.name.length > 10
-            ? item.name.substring(0, 20) + "..."
+            ? item.name.substring(0, 10) + "..."
             : item.name}
         </div>
       ),
@@ -63,8 +64,8 @@ export const buildTableRenderData = (musicList: MusicVo[]) => {
       dataIndex: "operation",
       key: "operation",
       render: (_item: DataType) => (
-        <div className="flex gap-2 items-center justify-center text-white">
-          <IoIosMore className="text-2xl cursor-pointer" />
+        <div className="relative w-full h-full text-white">
+          <IoIosMore className="text-2xl cursor-pointer my-0 mx-auto" />
         </div>
       ),
     },

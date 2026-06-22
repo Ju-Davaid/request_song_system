@@ -37,7 +37,6 @@ export const getRandomNumber = (min: number, max: number): number => {
  * @returns 是否是相同时长的歌曲
  */
 export const isSameDuration = (duration: number, playerDuration: number) => {
-    console.log("判断是否是相同时长的歌曲", duration, playerDuration);
     const durationDiff = Math.abs(duration - playerDuration);
     return durationDiff <= 5;
 }

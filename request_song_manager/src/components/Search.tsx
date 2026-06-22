@@ -6,6 +6,8 @@ import { getSearchResult } from "@/api";
 import type { SearchVo } from "@/types/Music";
 import usePlayerStore from "@/store/player.store";
 import useMessage from "@/hooks/useMessage";
+import { Image } from "antd";
+import defaultCover from "@/assets/images/default_cover.jpg";
 
 /**
  * 搜索组件
@@ -89,7 +91,7 @@ const Search = () => {
 
   return (
     <>
-      <div className="relative" ref={containerRef}>
+      <div className="relative z-10" ref={containerRef}>
         <Input
           value={inputValue}
           onChange={(event) => handleInputChange(event.target.value)}
@@ -105,12 +107,21 @@ const Search = () => {
         />
         {/* 搜索结果列表 */}
         {isVisibleSearch && searchResult.length > 0 && (
-          <div className="absolute z-2 h-100 rounded-md top-10 left-0 w-full p-2 bg-[#29292B]">
+          <div className="absolute z-10 h-145 rounded-md top-10 left-0 w-full p-2 bg-[#29292B]">
             {searchResult.map((song) => (
               <div
                 key={song.songmid}
                 className="flex gap-4 p-2 items-center justify-between transition-colors duration-300 hover:bg-[#353537] rounded-sm"
               >
+                <Image
+                  width={40}
+                  height={40}
+                  preview={false}
+                  src={song.cover}
+                  className="block rounded-sm"
+                  fallback={defaultCover}
+                  alt="音乐封面"
+                />
                 <div
                   className="text-sm line-clamp-1 flex-1"
                   title={`${song.name} - ${song.singer}`}
@@ -123,7 +134,7 @@ const Search = () => {
                     message.success("点歌成功");
                     addMusic(song);
                   }}
-                  className="py-0.5 w-12  rounded-full text-[12px] cursor-pointer bg-secondary hover:bg-primary"
+                  className="py-0.5 w-12  rounded-full text-[12px] cursor-pointer bg-primary"
                 >
                   点歌
                 </button>

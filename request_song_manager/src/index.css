@@ -49,4 +49,24 @@
     @variant hover;
     border-color: var(--color-secondary);
   }
+
+}
+
+
+.animate-rotate-360 {
+  animation: rotate-360 5s linear infinite;
+}
+
+.animate-pause {
+  animation-play-state: paused;
+}
+
+@keyframes rotate-360 {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
 }

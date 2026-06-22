@@ -29,7 +29,7 @@ const LoadingPage = ({ isVisible }: LoadingPageProps) => {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1 }}
-          className="w-screen h-screen bg-[#7c756d] fixed top-0 left-0 z-10 flex items-center justify-center"
+          className="w-screen h-screen bg-[#7c756d] fixed top-0 left-0 z-100 flex items-center justify-center"
         >
           {/* 背景层 */}
           <BlurBackground imageSrc={loadingBg} />

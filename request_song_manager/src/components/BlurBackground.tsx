@@ -17,7 +17,7 @@ const BlurBackground = ({ imageSrc }: BlurBackgroundProps) => {
         }}
         className="translate-z-0 w-full h-full fixed left-0 top-0 bg-no-repeat bg-cover bg-position-[50%] blur-[65px] opacity-60 bg-white"
       ></div>
-      <div className="z-2 w-full h-full fixed left-0 top-0 bg-[rgba(0,0,0,0.35)]"></div>
+      <div className="z-2 w-full h-full fixed left-0 top-0 bg-[rgba(0,0,0,0.5)]"></div>
     </>
   );
 };

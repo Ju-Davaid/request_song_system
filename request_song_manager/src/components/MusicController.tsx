@@ -62,9 +62,9 @@ const MusicController = () => {
         }
       }
     };
-    document.addEventListener("keydown", handelKeyboardEvent);
+    document.addEventListener("keyup", handelKeyboardEvent);
     return () => {
-      document.removeEventListener("keydown", handelKeyboardEvent);
+      document.removeEventListener("keyup", handelKeyboardEvent); 
     };
   }, [togglePlay, currentMusic]);
   return (
