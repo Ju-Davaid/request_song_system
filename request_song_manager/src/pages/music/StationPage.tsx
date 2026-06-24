@@ -19,7 +19,6 @@ import NormalMode from "@/pages/music/NormalMode";
 import { AnimatePresence, motion } from "motion/react";
 import musicList from "@/data/musicMockData";
 
-
 /** 点歌台页面 */
 const StationPage = () => {
   // 当前封面位置
@@ -57,6 +56,7 @@ const StationPage = () => {
   }, []);
   // 音乐播放错误处理
   const handelMusicError = useCallback((music?: MusicVo) => {
+    if (!music) return;
     NotificationApi.error({
       title: `《${music?.name}》播放失败`,
       duration: false,

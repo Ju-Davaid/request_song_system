@@ -1,3 +1,8 @@
+export interface Lyric {
+    time: number;
+    txt: string;
+}
+
 export interface MusicVo {
     name: string;
     singer: string;
@@ -7,7 +12,7 @@ export interface MusicVo {
     similarity: number;
     vip?: boolean;
     cover?: string;
-    lyric?: string;
+    lyric?: Lyric[];
 }
 
 export interface SearchVo extends MusicVo {

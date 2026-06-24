@@ -224,6 +224,12 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
     },
     changeMusic: async (music, onAfter) => {
         const state = get();
+        if (!music) {
+            state.Player.pause();
+            state.Player.currentTime = 0;
+            state.Player.src = "";
+            return set({ currentMusic: null, isPlaying: false, playlistIndex: 0, currentTime: 0 });
+        }
         if (!state.Player || !music) return;
         const targetIndex = state.musicList.findIndex(s => s.songmid === music.songmid);
         if (targetIndex === -1) return;
@@ -262,7 +268,7 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
         const latestState = get();
         onAfter?.(latestState);
     },
- 
+
     changeProgress: (time) => {
         const state = get();
         if (!state.Player || time > state.duration) return;

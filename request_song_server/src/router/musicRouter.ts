@@ -6,6 +6,7 @@ import requestMusicServer from '../music/index';
 import { Method } from 'axios';
 import { similarAlgorithm } from '../utils/similarAlgorithm';
 import { MusicVo, SearchVo } from '../entity/vo/MusicVo';
+import { MusicListDB } from '../database';
 
 musicRouter.post('/request_song', (req, res) => {
     const { songName } = req.body;

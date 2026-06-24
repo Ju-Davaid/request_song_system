@@ -2,12 +2,14 @@ import { Input } from "antd";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { debounce } from "@/utils";
-import { getSearchResult } from "@/api";
+import { addMusicToDB, getSearchResult } from "@/api";
 import type { SearchVo } from "@/types/Music";
 import usePlayerStore from "@/store/player.store";
 import useMessage from "@/hooks/useMessage";
-import { Image } from "antd";
+import { Image, List } from "antd";
 import defaultCover from "@/assets/images/default_cover.jpg";
+import { AiOutlineDelete } from "react-icons/ai";
+import VirtualList from "@rc-component/virtual-list";
 
 /**
  * 搜索组件
@@ -25,8 +27,12 @@ const Search = () => {
   const latestSearchKey = useRef("");
   // 点歌函数
   const addMusic = usePlayerStore((state) => state.addMusic);
+  // 本地搜索历史记录
+  const [localHistoryList, setLocalHistoryList] = useState<string[]>(() =>
+    JSON.parse(localStorage.getItem("historyList") ?? "[]"),
+  );
+  const musicList = usePlayerStore((state) => state.musicList);
   const message = useMessage();
-
   // 点击外部关闭弹窗
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -88,6 +94,29 @@ const Search = () => {
     },
     [debouncedSearch],
   );
+  const handelAddMusic = useCallback(
+    async (item: SearchVo) => {
+      try {
+        await addMusicToDB(item);
+      } catch (error) {
+        console.error("同步失败", error);
+        message.error("同步失败");
+      }
+      const newHistoryList = [...localHistoryList];
+      newHistoryList.unshift(`${item.name} - ${item.singer}`);
+      console.log("newHistoryList", newHistoryList);
+      const listArr = new Set(newHistoryList);
+      let res = [...listArr];
+      console.log("res", res);
+      if (res.length > 5) {
+        res = res.splice(0, 5);
+      }
+      setLocalHistoryList(res);
+      localStorage.setItem("historyList", JSON.stringify(res));
+      addMusic(item);
+    },
+    [musicList, localHistoryList],
+  );
 
   return (
     <>
@@ -107,39 +136,74 @@ const Search = () => {
         />
         {/* 搜索结果列表 */}
         {isVisibleSearch && searchResult.length > 0 && (
-          <div className="absolute z-10 h-145 rounded-md top-10 left-0 w-full p-2 bg-[#29292B]">
-            {searchResult.map((song) => (
-              <div
-                key={song.songmid}
-                className="flex gap-4 p-2 items-center justify-between transition-colors duration-300 hover:bg-[#353537] rounded-sm"
+          <div className="absolute z-10 rounded-md top-10 left-0 w-full p-2 bg-[#29292B]">
+            {/* 点歌历史记录 */}
+            {localHistoryList.length > 0 && (
+              <>
+                <div className="flex justify-between items-center mb-2">
+                  <span className="opacity-50 text-xs">点歌历史记录</span>
+                  <AiOutlineDelete className="opacity-50 text-xl cursor-pointer" />
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {localHistoryList.map((item, index) => (
+                    <div
+                      key={index}
+                      className="flex gap-4 p-2 cursor-pointer items-center justify-between transition-colors duration-300 bg-[#353537] rounded-lg"
+                    >
+                      <span
+                        className="text-xs line-clamp-1 flex-1"
+                        title={item}
+                      >
+                        {item.length > 10 ? item.slice(0, 10) + "..." : item}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+            <div className="mt-2 h-70 relative">
+              <List
+                className="w-full absolute! left-0 top-0"
+                split={false}
               >
-                <Image
-                  width={40}
-                  height={40}
-                  preview={false}
-                  src={song.cover}
-                  className="block rounded-sm"
-                  fallback={defaultCover}
-                  alt="音乐封面"
-                />
-                <div
-                  className="text-sm line-clamp-1 flex-1"
-                  title={`${song.name} - ${song.singer}`}
-                  dangerouslySetInnerHTML={{
-                    __html: Object.values(song.highlight).join(" - "),
-                  }}
-                ></div>
-                <button
-                  onClick={() => {
-                    message.success("点歌成功");
-                    addMusic(song);
-                  }}
-                  className="py-0.5 w-12  rounded-full text-[12px] cursor-pointer bg-primary"
+                <VirtualList
+                  data={searchResult}
+                  height={280}
+                  itemHeight={56}
+                  itemKey="songmid"
                 >
-                  点歌
-                </button>
-              </div>
-            ))}
+                  {(song) => (
+                    <div
+                      key={song.songmid}
+                      className="text-white  flex gap-4 p-2 items-center justify-between transition-colors duration-300 hover:bg-[#353537] rounded-sm"
+                    >
+                      <Image
+                        width={40}
+                        height={40}
+                        preview={false}
+                        src={song.cover}
+                        className="block rounded-sm"
+                        fallback={defaultCover}
+                        alt="音乐封面"
+                      />
+                      <div
+                        className="text-sm line-clamp-1 flex-1"
+                        title={`${song.name} - ${song.singer}`}
+                        dangerouslySetInnerHTML={{
+                          __html: Object.values(song.highlight).join(" - "),
+                        }}
+                      ></div>
+                      <button
+                        onClick={() => handelAddMusic(song)}
+                        className="py-0.5 w-12  rounded-full text-[12px] cursor-pointer bg-primary"
+                      >
+                        点歌
+                      </button>
+                    </div>
+                  )}
+                </VirtualList>
+              </List>
+            </div>
           </div>
         )}
       </div>

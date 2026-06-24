@@ -3,7 +3,6 @@ import usePlayStore from "@/store/player.store";
 import MusicList from "@/components/MusicList";
 import { AiOutlineClear } from "react-icons/ai";
 import Lyric from "@/components/Lyric";
-import musicList from "@/data/musicMockData";
 import { useEffect, useRef } from "react";
 import useCoverStore from "@/store/cover.store";
 
@@ -17,6 +16,17 @@ const NormalMode = () => {
       setCoverPosition(coverPlaceholder.current.getBoundingClientRect());
     }
   }, [coverPlaceholder.current]);
+  useEffect(() => {
+    const handelResize = () => {
+      if (coverPlaceholder.current) {
+        setCoverPosition(coverPlaceholder.current.getBoundingClientRect());
+      }
+    };
+    window.addEventListener("resize", handelResize);
+    return () => {
+      window.removeEventListener("resize", handelResize);
+    };
+  }, [setCoverPosition]);
   return (
     <>
       <div className="flex-1 pl-12.5 flex flex-col">

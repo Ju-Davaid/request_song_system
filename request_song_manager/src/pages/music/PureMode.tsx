@@ -16,6 +16,17 @@ const PureMode = () => {
       setCoverPosition(coverPlaceholder.current.getBoundingClientRect());
     }
   }, [coverPlaceholder.current]);
+  useEffect(() => {
+    const handelResize = () => {
+      if (coverPlaceholder.current) {
+        setCoverPosition(coverPlaceholder.current.getBoundingClientRect());
+      }
+    };
+    window.addEventListener("resize", handelResize);
+    return () => {
+      window.removeEventListener("resize", handelResize);
+    };
+  }, [setCoverPosition]);
   return (
     <div className="h-full flex my-0 mx-auto gap-50">
       <FloatMusicList

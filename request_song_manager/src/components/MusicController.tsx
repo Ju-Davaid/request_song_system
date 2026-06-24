@@ -2,7 +2,7 @@ import ProgressBar from "@/components/ProgressBar";
 import { Tooltip } from "antd";
 import playOrderBtnList from "@/data/playOrderLayoutData";
 import usePlayerStore from "@/store/player.store";
-import { formatSecondToTime } from "@/utils";
+import { download, formatSecondToTime } from "@/utils";
 import SpiritButton from "@/components/SpiritButton";
 import { useCallback, useEffect } from "react";
 import useMessage from "@/hooks/useMessage";
@@ -34,16 +34,7 @@ const MusicController = () => {
     if (!currentMusic?.url) return warning("暂无下载链接");
     const { url, name } = currentMusic;
     try {
-      const res = await fetch(url);
-      const blob = await res.blob();
-      const blobUrl = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = blobUrl;
-      a.download = name ?? "未知音频";
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(blobUrl);
+      await download(url, name);
       success("下载成功");
     } catch (err) {
       error("下载失败，请稍后重试");
@@ -64,7 +55,7 @@ const MusicController = () => {
     };
     document.addEventListener("keyup", handelKeyboardEvent);
     return () => {
-      document.removeEventListener("keyup", handelKeyboardEvent); 
+      document.removeEventListener("keyup", handelKeyboardEvent);
     };
   }, [togglePlay, currentMusic]);
   return (

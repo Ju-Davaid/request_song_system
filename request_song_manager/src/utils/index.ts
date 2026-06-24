@@ -44,3 +44,4 @@ export const isSameDuration = (duration: number, playerDuration: number) => {
 export { loadFont } from './loadFont';
 export * from './buildTableRenderData';
 export { debounce } from './debounce';
+export { download } from './download';
