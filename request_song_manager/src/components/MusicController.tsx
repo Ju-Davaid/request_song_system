@@ -2,12 +2,12 @@ import ProgressBar from "@/components/ProgressBar";
 import { Tooltip } from "antd";
 import playOrderBtnList from "@/data/playOrderLayoutData";
 import usePlayerStore from "@/store/player.store";
-import { download, formatSecondToTime } from "@/utils";
+import { formatSecondToTime } from "@/utils";
 import SpiritButton from "@/components/SpiritButton";
-import { useCallback, useEffect } from "react";
-import useMessage from "@/hooks/useMessage";
+import { useEffect } from "react";
 import musicList from "@/data/musicMockData";
 import { isSameDuration } from "@/utils";
+import useMusicList from "@/hooks/useOperateMusicList";
 
 /**
  * 音乐控制组件
@@ -26,23 +26,11 @@ const MusicController = () => {
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const nextMusic = usePlayerStore((state) => state.nextMusic);
   const prevMusic = usePlayerStore((state) => state.prevMusic);
-  const { warning, success, error, contextHolder } = useMessage();
+  const { MessageContextHolder, downloadMusic } = useMusicList();
   const isCleanMode = usePlayerStore((state) => state.isCleanMode);
   const toggleCleanMode = usePlayerStore((state) => state.toggleCleanMode);
-  // 下载音频
-  const handelDownload = useCallback(async () => {
-    if (!currentMusic?.url) return warning("暂无下载链接");
-    const { url, name } = currentMusic;
-    try {
-      await download(url, name);
-      success("下载成功");
-    } catch (err) {
-      error("下载失败，请稍后重试");
-      console.error(err);
-    }
-  }, [currentMusic]);
-  // 键盘事件
-  // 空格键: 播放/暂停
+
+  // 键盘事件  空格键: 播放/暂停
   useEffect(() => {
     const handelKeyboardEvent = (e: KeyboardEvent) => {
       if (e.code === "Space" || e.key === " ") {
@@ -144,7 +132,7 @@ const MusicController = () => {
           {/* 下载按钮 */}
           <SpiritButton
             disabled={!currentMusic}
-            onClick={handelDownload}
+            onClick={() => downloadMusic(currentMusic)}
             position={[0, -120]}
             width={22}
             height={21}
@@ -175,7 +163,7 @@ const MusicController = () => {
           </div>
         </div>
       </div>
-      {contextHolder}
+      {MessageContextHolder}
     </>
   );
 };

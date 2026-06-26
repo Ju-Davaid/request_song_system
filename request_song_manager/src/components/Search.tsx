@@ -96,12 +96,6 @@ const Search = () => {
   );
   const handelAddMusic = useCallback(
     async (item: SearchVo) => {
-      try {
-        await addMusicToDB(item);
-      } catch (error) {
-        console.error("同步失败", error);
-        message.error("同步失败");
-      }
       const newHistoryList = [...localHistoryList];
       newHistoryList.unshift(`${item.name} - ${item.singer}`);
       console.log("newHistoryList", newHistoryList);
@@ -113,6 +107,14 @@ const Search = () => {
       }
       setLocalHistoryList(res);
       localStorage.setItem("historyList", JSON.stringify(res));
+      const isExist = musicList.some((music) => music.songmid === item.songmid);
+      if (isExist) {
+        message.warning("该歌曲已存在");
+        return;
+      }
+      try {
+        await addMusicToDB(item);
+      } catch (error) {}
       addMusic(item);
     },
     [musicList, localHistoryList],
@@ -161,11 +163,11 @@ const Search = () => {
                 </div>
               </>
             )}
-            <div className="mt-2 h-70 relative">
-              <List
-                className="w-full absolute! left-0 top-0"
-                split={false}
-              >
+            <div className="mt-4 flex justify-between items-center">
+              <span className="opacity-50 text-xs">搜索结果</span>
+            </div>
+            <div className="h-70 relative">
+              <List className="w-full absolute! left-0 top-0" split={false}>
                 <VirtualList
                   data={searchResult}
                   height={280}

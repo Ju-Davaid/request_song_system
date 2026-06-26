@@ -15,4 +15,10 @@ export const getUserPlayList = ({ uin, offset = 0, limit = 30 }) => Server.get(`
 export const getMusicInfo = (keyword: string) => Server.get(`/getMusicInfo?keyword=${keyword}`);
 export const getSearchResult = (keyword: string) => Server.get(`/search?keyword=${keyword}`);
 export const getMusicPlayUrl = (songmid: string) => Server.get(`/getMusicUrl?songmid=${songmid}`);
+// 添加音乐到数据库
 export const addMusicToDB = (music: MusicVo) => Server.post("/addMusic", { music });
+// 清空数据库中的音乐
+export const clearMusicFromDB = () => Server.post("/clearMusic");
+// 删除数据库中的音乐
+export const deleteMusicFromDB = (songmid: string) => Server.get(`/deleteMusic?songmid=${songmid}`);
+export const getMusicListFromDB = () => Server.get<MusicVo[]>("/getMusicList");

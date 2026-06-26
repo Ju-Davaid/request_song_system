@@ -2,7 +2,7 @@ import { create } from "zustand";
 import type { MusicVo } from "@/types/Music";
 import playOrderBtnList from "@/data/playOrderLayoutData";
 import { getRandomNumber } from "@/utils";
-import { getMusicPlayUrl } from "@/api";
+import { deleteMusicFromDB, getMusicPlayUrl } from "@/api";
 // 播放模式
 type PlayOrderType = 0 | 1 | 2 | 3;
 // 播放器监听配置
@@ -91,6 +91,10 @@ export const applyPlayMusic = async (
     }
 };
 
+/**
+ * 播放器状态管理
+ * @returns 播放器状态管理
+ * */
 const usePlayerStore = create<PlayerStore>((set, get) => ({
     Player: null,
     currentMusic: null,
@@ -171,11 +175,13 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
         };
         player.addEventListener("durationchange", boundDurationChange);
 
-        // 播放结束，统一调度播放模式（不再嵌套调用action）
-        boundEnded = () => {
+        // 播放结束
+        boundEnded = async () => {
             const state = get();
             const order = state.playOrder;
-
+            const currentMusic = state.currentMusic;
+            await deleteMusicFromDB(currentMusic.songmid);
+            state.musicList = state.musicList.filter(m => m.songmid !== currentMusic.songmid);
             if (order === 0) {
                 get().nextMusic();
             } else if (order === 1) {

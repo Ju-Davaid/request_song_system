@@ -1,40 +1,21 @@
 import usePlayerStore from "@/store/player.store";
-import { buildTableRenderData, type DataType } from "@/utils";
-import { useCallback, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState, type FC } from "react";
 import { List } from "antd";
 import VirtualList from "@rc-component/virtual-list";
-import Empty from "./Empty";
+import Empty from "@/components/Empty";
+import useBuildTableRenderData, {
+  type DataType,
+} from "@/hooks/useBuildTableRenderData";
 
-const MusicList = () => {
-  const musicList = usePlayerStore((state) => state.musicList);
+
+/**
+ * 音乐列表组件
+ */
+const MusicList: FC = () => {
   const currentMusic = usePlayerStore((state) => state.currentMusic);
-  const { dataSource, columns } = useMemo(
-    () => buildTableRenderData(musicList),
-    [musicList],
-  );
-  const [checkedList, setCheckedList] = useState<string[]>([]);
+  const { dataSource, columns } = useBuildTableRenderData();
+  // 监听数据行高度变化，更新虚拟列表高度
   const dataContainerRef = useRef<HTMLDivElement>(null);
-
-  // 全选
-  const handleSelectAll = useCallback(() => {
-    if (checkedList.length === dataSource.length) {
-      setCheckedList([]);
-    } else {
-      setCheckedList(dataSource.map((item) => item.songmid));
-    }
-  }, [dataSource, checkedList]);
-
-  // 单选
-  const handleSelectItem = useCallback(
-    (songmid: string) => {
-      if (checkedList.includes(songmid)) {
-        setCheckedList(checkedList.filter((item) => item !== songmid));
-      } else {
-        setCheckedList([...checkedList, songmid]);
-      }
-    },
-    [checkedList],
-  );
 
   return (
     <div className="flex-1 my-5 text-sm text-white">
@@ -82,11 +63,11 @@ const MusicList = () => {
                         }`}
                       >
                         {column.render?.(
-                            item,
-                            currentMusic
-                              ? currentMusic?.songmid === item.songmid
-                              : false,
-                          ) ?? item[column.dataIndex]}
+                          item,
+                          currentMusic
+                            ? currentMusic?.songmid === item.songmid
+                            : false,
+                        ) ?? item[column.dataIndex]}
                       </div>
                     ))}
                   </div>

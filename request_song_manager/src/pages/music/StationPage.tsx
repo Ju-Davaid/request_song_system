@@ -17,7 +17,7 @@ import MusicCover from "@/components/MusicCover";
 import useCoverStore from "@/store/cover.store";
 import NormalMode from "@/pages/music/NormalMode";
 import { AnimatePresence, motion } from "motion/react";
-import musicList from "@/data/musicMockData";
+import { getMusicListFromDB } from "@/api";
 
 /** 点歌台页面 */
 const StationPage = () => {
@@ -45,6 +45,8 @@ const StationPage = () => {
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   // 加载状态
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
+  // 切换音乐
+  const changeMusic = usePlayerStore((state) => state.changeMusic);
   // 音乐播放结束处理
   const handelMusicEnd = useCallback(() => {
     NotificationApi.info({
@@ -74,10 +76,16 @@ const StationPage = () => {
   }, [setPlayer]);
   // 初始切换音乐
   useEffect(() => {
-    setTimeout(() => {
-      setIsLoaded(true);
-    }, 500);
-  }, [isLoaded]);
+    getMusicListFromDB().then((res) => {
+      // setMusicList(res);
+      console.log("获取音乐列表成功:", res);
+      setMusicList(res.data);
+      changeMusic(res.data[0]);
+      setTimeout(() => {
+        setIsLoaded(true);
+      }, 500);
+    });
+  }, []);
   return (
     <>
       <LoadingPage isVisible={!isLoaded} />

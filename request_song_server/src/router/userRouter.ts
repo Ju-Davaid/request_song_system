@@ -8,10 +8,12 @@ import { MusicVo } from '../entity/vo/MusicVo';
 
 const userRouter = express.Router();
 
+// 获取QQ登录二维码
 userRouter.get('/getQQLoginQr', async (req, res) => {
     const data = await requestMusicServer(req.path, req.method as Method);
     res.status(200).json(data);
 })
+// 检查QQ登录二维码
 userRouter.post('/checkQQLoginQr', async (req, res) => {
     const data = await requestMusicServer(req.path, req.method as Method, req.body);
     res.status(200).json(data);
@@ -31,6 +33,7 @@ userRouter.get('/userInfo', async (req, res) => {
         return;
     }
 });
+// 添加歌曲
 userRouter.post("/addMusic", async (req, res) => {
     const { music } = req.body;
     if (!music) {
@@ -52,9 +55,62 @@ userRouter.post("/addMusic", async (req, res) => {
         res.status(500).send(ResponseViewObject.error('添加歌曲失败'));
     }
 })
+// 获取歌曲列表
 userRouter.get("/getMusicList", async (req, res) => {
-    const musicList = await MusicListDB.getInstance().getAllMusic();
-    res.status(200).json(ResponseViewObject.success(musicList));
+    try {
+        const musicList = (await MusicListDB.getInstance().getAllMusic()).map((item) => ({
+            ...item.dataValues,
+            lyric: JSON.parse(item.lyric?.toString() ?? '[]')
+        }));
+
+        res.status(200).json(ResponseViewObject.success(musicList));
+    } catch (err) {
+        console.error('获取歌曲列表失败:', err);
+        res.status(500).send(ResponseViewObject.error('获取歌曲列表失败'));
+    }
+})
+// 删除歌曲
+userRouter.post("/deleteMusic", async (req, res) => {
+    const { songmid } = req.body;
+    if (!songmid) {
+        res.status(400).send(ResponseViewObject.error('songmid is required'));
+        return;
+    }
+    try {
+        const musicList = MusicListDB.getInstance();
+        const result = await musicList.deleteMusic(songmid);
+        res.status(200).json(ResponseViewObject.success(result));
+    } catch (err) {
+        console.error('删除歌曲失败:', err);
+        res.status(500).send(ResponseViewObject.error('删除歌曲失败'));
+    }
+})
+// 清空歌曲
+userRouter.post("/clearMusic", async (req, res) => {
+    try {
+        const musicList = MusicListDB.getInstance();
+        await musicList.clearAll();
+        res.status(200).json(ResponseViewObject.success(null));
+    } catch (err) {
+        console.error('清空歌曲失败:', err);
+        res.status(500).send(ResponseViewObject.error('清空歌曲失败'));
+    }
+})
+
+userRouter.get("/deleteMusic", async (req, res) => {
+    const { songmid } = req.query;
+    if (!songmid) {
+        res.status(400).send(ResponseViewObject.error('songmid is required'));
+        return;
+    }
+    try {
+        const musicList = MusicListDB.getInstance();
+        await musicList.deleteMusic(songmid as string);
+        res.status(200).json(ResponseViewObject.success(null));
+    } catch (err) {
+        console.error('删除歌曲失败:', err);
+        res.status(500).send(ResponseViewObject.error('删除歌曲失败'));
+    }
 })
 
 export default userRouter;

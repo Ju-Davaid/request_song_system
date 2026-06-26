@@ -5,6 +5,9 @@ import useCoverStore from "@/store/cover.store";
 import { useEffect, useRef, useState } from "react";
 import FloatMusicList from "@/components/FloatMusicList";
 
+/**
+ * 纯净模式组件
+ */
 const PureMode = () => {
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
