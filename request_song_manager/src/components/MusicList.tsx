@@ -1,5 +1,5 @@
 import usePlayerStore from "@/store/player.store";
-import { useCallback, useEffect, useRef, useState, type FC } from "react";
+import { useRef, type FC } from "react";
 import { List } from "antd";
 import VirtualList from "@rc-component/virtual-list";
 import Empty from "@/components/Empty";
@@ -7,14 +7,14 @@ import useBuildTableRenderData, {
   type DataType,
 } from "@/hooks/useBuildTableRenderData";
 
-
 /**
  * 音乐列表组件
  */
 const MusicList: FC = () => {
   const currentMusic = usePlayerStore((state) => state.currentMusic);
+  const isPlaying = usePlayerStore((state) => state.isPlaying);
   const { dataSource, columns } = useBuildTableRenderData();
-  // 监听数据行高度变化，更新虚拟列表高度
+  // 数据行容器引用
   const dataContainerRef = useRef<HTMLDivElement>(null);
 
   return (
@@ -65,9 +65,10 @@ const MusicList: FC = () => {
                         {column.render?.(
                           item,
                           currentMusic
-                            ? currentMusic?.songmid === item.songmid
+                            ? currentMusic?.songmid === item.songmid &&
+                                isPlaying
                             : false,
-                        ) ?? item[column.dataIndex]}
+                        ) ?? String((item as unknown as Record<string, unknown>)[column.dataIndex])}
                       </div>
                     ))}
                   </div>

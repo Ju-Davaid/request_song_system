@@ -1,35 +1,37 @@
-import { message } from 'antd';
 import { useCallback } from 'react';
+import { App } from 'antd';
 
 const useMessage = () => {
-    const [messageApi, contextHolder] = message.useMessage();
+    const { message, notification } = App.useApp();
 
     const success = useCallback((content: string) => {
-        messageApi.open({
+        message.open({
             type: 'success',
             content,
         });
-    }, [messageApi]);
+    }, [message]);
 
     const error = useCallback((content: string) => {
-        messageApi.open({
+        message.open({
             type: 'error',
             content,
         });
-    }, [messageApi]);
+    }, [message]);
 
     const warning = useCallback((content: string) => {
-        messageApi.open({
+        message.open({
             type: 'warning',
             content,
         });
-    }, [messageApi]);
+    }, [message]);
 
     return {
-        success,
-        error,
-        warning,
-        contextHolder,
+        notification,
+        message: {
+            success,
+            error,
+            warning,
+        }
     };
 };
 

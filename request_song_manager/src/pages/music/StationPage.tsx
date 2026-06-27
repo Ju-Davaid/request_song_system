@@ -6,7 +6,6 @@ import qqLogin from "@/assets/images/login_qq.png";
 import { useCallback, useEffect, useRef, useState } from "react";
 import MusicController from "@/components/MusicController";
 import usePlayerStore from "@/store/player.store";
-import { notification } from "antd";
 import type { MusicVo } from "@/types/Music";
 import LoadingPage from "@/components/LoadingPage";
 import BlurBackground from "@/components/BlurBackground";
@@ -18,20 +17,25 @@ import useCoverStore from "@/store/cover.store";
 import NormalMode from "@/pages/music/NormalMode";
 import { AnimatePresence, motion } from "motion/react";
 import { getMusicListFromDB } from "@/api";
+import useMessage from "@/hooks/useMessage";
+import useSocket from "@/hooks/useSocket";
+import { SocketRoleEnum } from "@/enum/SocketRoleEnum";
 
 /** 点歌台页面 */
 const StationPage = () => {
+  useSocket({ role: SocketRoleEnum.ADMIN });
   // 当前封面位置
   const coverPosition = useCoverStore((state) => state.coverPosition);
   // 设置弹窗引用
-  const myModalRef = useRef<MyModalExpose>(null);
+  const myModalRef = useRef<MyModalExpose | null>(null);
   // 用户信息
-  const { avatar, username } = useUserInfoStore((state) => state.userInfo);
+  const userInfo = useUserInfoStore((state) => state.userInfo);
+  const avatar = userInfo?.avatar ?? "";
+  const username = userInfo?.username ?? "";
   // 音乐播放器引用
   const musicPlayerRef = useRef<HTMLAudioElement>(new Audio());
   // 通知组件引用
-  const [NotificationApi, NotificationContextHolder] =
-    notification.useNotification();
+  const { notification: NotificationApi } = useMessage();
   // 设置音乐播放器
   const setPlayer = usePlayerStore((state) => state.setPlayer);
   const isCleanMode = usePlayerStore((state) => state.isCleanMode);
@@ -89,9 +93,8 @@ const StationPage = () => {
   return (
     <>
       <LoadingPage isVisible={!isLoaded} />
-      {NotificationContextHolder}
       {/* 设置弹窗 */}
-      <MyModal ref={myModalRef} title="设置" />
+      <MyModal ref={myModalRef} title="设置"></MyModal>
       <div className="relative w-screen h-screen bg-[#7c756d] overflow-hidden">
         {/* 音乐封面 */}
         {coverPosition && (
@@ -105,7 +108,7 @@ const StationPage = () => {
           />
         )}
         {/* 背景层 */}
-        <BlurBackground imageSrc={currentMusic?.cover} />
+        {currentMusic && <BlurBackground imageSrc={currentMusic.cover} />}
         {/* 内容层 */}
         <main className="z-3 w-full h-full fixed left-0 top-0 flex flex-col">
           {/* 头部容器 */}

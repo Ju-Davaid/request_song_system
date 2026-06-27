@@ -1,5 +1,5 @@
 import { create } from 'axios';
-const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
+const musicApiPort = process.env.MUSIC_API_PORT ?? '3001';
 const musicApi = create({
     baseURL: `http://localhost:${musicApiPort}`,
     timeout: 10000,

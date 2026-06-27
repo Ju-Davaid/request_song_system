@@ -3,12 +3,14 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { spawn } from 'child_process';
 import path from 'path';
+import initSocketServer from './socket';
+import http from 'http';
 // 加载环境变量
 dotenv.config();
 import musicRouter from './router/musicRouter';
 import userRouter from './router/userRouter';
 // 音乐API端口
-const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
+const musicApiPort = process.env.MUSIC_API_PORT ?? '3001';
 
 //  接入QQ音乐API
 const qqMusicPath = path.join(__dirname, '../', 'node_modules', '@sansenjian/qq-music-api', 'dist', 'app.js');
@@ -27,10 +29,15 @@ musicApiProcess.on('error', (err) => {
   console.error(`Music API process error: ${err}`);
 });
 
-
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT ?? 3000;
 const IP = process.env.IP ?? '127.0.0.1';
+
+// 初始化Socket服务器
+initSocketServer(server);
+
+
 
 // 中间件
 app.use(cors());
@@ -51,7 +58,7 @@ app.get('/{*path}', (_req, res) => {
 });
 
 // 启动服务
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server is running on http://${IP}:${PORT}`);
   console.log(`Music API is running on http://${IP}:${musicApiPort}`);
 });

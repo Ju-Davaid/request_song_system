@@ -10,7 +10,7 @@ export const debounce = <T extends (...args: any[]) => any>(
 ): DebounceReturn<T> => {
     let timer: ReturnType<typeof setTimeout> | null = null;
 
-    const debouncedFn = function (...args: Parameters<T>) {
+    const debouncedFn = function (this: unknown, ...args: Parameters<T>) {
         if (timer) clearTimeout(timer);
 
         if (immediate && !timer) {

@@ -1,10 +1,15 @@
 import type { MusicVo } from "@/types/Music";
-import { formatSecondToTime } from "../utils";
+import { formatSecondToTime } from "@/utils";
 import playingImage from "@/assets/images/playing.gif";
 import { IoIosMore, IoIosCheckboxOutline, IoIosCheckbox } from "react-icons/io";
 import { useCallback, useMemo, type ReactNode } from "react";
 import usePlayerStore from "@/store/player.store";
 import useMusicBatchOperateStore from "@/store/musicBatchOperate.store";
+import { Popover } from "antd";
+import { FaPlay, FaPause } from "react-icons/fa";
+import { AiOutlineDelete } from "react-icons/ai";
+import { IoMdDownload } from "react-icons/io";
+import useOperateMusicList from "@/hooks/useOperateMusicList";
 
 export interface DataType extends MusicVo {
   order: number;
@@ -36,16 +41,12 @@ const firstColumn = (
     title: "批量操作",
     key: "batchOperation",
     dataIndex: "batchOperation",
-    render: (
-      _item: DataType,
-      _isPlaying: boolean = false,
-      isChecked: boolean = false,
-    ) => (
+    render: (_item: DataType, _isPlaying: boolean = false) => (
       <div
         className="flex items-center justify-center"
-        onClick={() => handleSelectItem(_item.songmid)}
+        onClick={() => handleSelectItem(_item.songmid ?? "")}
       >
-        {!checkedList.includes(_item.songmid) ? (
+        {!checkedList.includes(_item.songmid ?? "") ? (
           <IoIosCheckboxOutline className="text-2xl cursor-pointer my-0 mx-auto" />
         ) : (
           <IoIosCheckbox className="text-2xl cursor-pointer my-0 mx-auto" />
@@ -70,21 +71,14 @@ const firstColumn = (
 export const useBuildTableRenderData = () => {
   const musicList = usePlayerStore((state) => state.musicList);
   const checkedList = useMusicBatchOperateStore((state) => state.checkedList);
+  const { deleteMusic, downloadMusic, toggleOrPauseMusic } =
+    useOperateMusicList();
   const setCheckedList = useMusicBatchOperateStore(
     (state) => state.setCheckedList,
   );
   const isBatchOperation = useMusicBatchOperateStore(
     (state) => state.isBatchOperation,
   );
-  // 全选
-  const handleSelectAll = useCallback(() => {
-    if (checkedList.length === dataSource.length) {
-      setCheckedList([]);
-    } else {
-      setCheckedList(dataSource.map((item) => item.songmid));
-    }
-  }, [checkedList]);
-
   // 单选
   const handleSelectItem = useCallback(
     (songmid: string) => {
@@ -146,14 +140,57 @@ export const useBuildTableRenderData = () => {
         title: "操作",
         dataIndex: "operation",
         key: "operation",
-        render: (_item: DataType) => (
-          <div className="relative w-full h-full text-white">
-            <IoIosMore className="text-2xl cursor-pointer my-0 mx-auto" />
-          </div>
+        render: (song: DataType, isPlaying: boolean = false) => (
+          <Popover
+            trigger="hover"
+            classNames={{
+              container: "p-0!",
+            }}
+            content={
+              <div className="w-30 text-[#121c37] py-2">
+                <div
+                  onClick={() => toggleOrPauseMusic(song)}
+                  className="flex py-2 cursor-pointer hover:bg-[#F3F4F5] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
+                >
+                  {isPlaying ? (
+                    <>
+                      <FaPause /> 暂停
+                    </>
+                  ) : (
+                    <>
+                      <FaPlay /> 播放
+                    </>
+                  )}
+                </div>
+                <div
+                  onClick={() => deleteMusic(song)}
+                  className="flex py-2 cursor-pointer hover:bg-[#F3F4F5] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
+                >
+                  <AiOutlineDelete size={18} /> 删除
+                </div>
+                <div
+                  onClick={() => downloadMusic(song)}
+                  className="flex py-2 cursor-pointer hover:bg-[#F3F4F5] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
+                >
+                  <IoMdDownload size={18} /> 下载
+                </div>
+              </div>
+            }
+          >
+            <div className="relative w-full h-full text-white">
+              <IoIosMore className="text-2xl cursor-pointer my-0 mx-auto" />
+            </div>
+          </Popover>
         ),
       },
     ],
-    [isBatchOperation, checkedList],
+    [
+      isBatchOperation,
+      checkedList,
+      toggleOrPauseMusic,
+      deleteMusic,
+      downloadMusic,
+    ],
   );
 
   return { dataSource, columns };

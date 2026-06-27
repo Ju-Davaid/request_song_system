@@ -26,7 +26,7 @@ const MusicController = () => {
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const nextMusic = usePlayerStore((state) => state.nextMusic);
   const prevMusic = usePlayerStore((state) => state.prevMusic);
-  const { MessageContextHolder, downloadMusic } = useMusicList();
+  const { downloadMusic } = useMusicList();
   const isCleanMode = usePlayerStore((state) => state.isCleanMode);
   const toggleCleanMode = usePlayerStore((state) => state.toggleCleanMode);
 
@@ -99,13 +99,17 @@ const MusicController = () => {
           </div>
           <ProgressBar
             className={
-              !currentMusic && "pointer-events-none cursor-not-allowed"
+              !currentMusic ? "pointer-events-none cursor-not-allowed" : undefined
             }
-            value={((currentTime / currentMusic?.duration) as number) * 100}
+            value={
+              currentMusic && currentMusic.duration
+                ? (currentTime / currentMusic.duration) * 100
+                : 0
+            }
             onChangeComplete={(value) => {
-              setCurrentTime(
-                (value / 100) * (currentMusic?.duration as number),
-              );
+              if (currentMusic?.duration) {
+                setCurrentTime((value / 100) * currentMusic.duration);
+              }
             }}
           />
         </div>
@@ -132,7 +136,7 @@ const MusicController = () => {
           {/* 下载按钮 */}
           <SpiritButton
             disabled={!currentMusic}
-            onClick={() => downloadMusic(currentMusic)}
+            onClick={() => currentMusic && downloadMusic(currentMusic)}
             position={[0, -120]}
             width={22}
             height={21}
@@ -163,7 +167,6 @@ const MusicController = () => {
           </div>
         </div>
       </div>
-      {MessageContextHolder}
     </>
   );
 };

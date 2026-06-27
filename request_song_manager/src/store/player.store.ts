@@ -42,7 +42,7 @@ interface PlayerStore {
     // 暂停/播放切换
     togglePlay: () => void;
     // 通过歌曲对象切歌，支持更新后回调
-    changeMusic: (music: MusicVo, onAfter?: (latestState: PlayerStore) => void) => void;
+    changeMusic: (music: MusicVo | null, onAfter?: (latestState: PlayerStore) => void) => void;
     // 通过下标切歌
     changeMusicByIndex: (index: number, onAfter?: (latestState: PlayerStore) => void) => void;
     // 下一首
@@ -71,10 +71,11 @@ export const applyPlayMusic = async (
 ): Promise<Partial<PlayerStore>> => {
     try {
         const music = state.musicList[targetIndex];
+        if (!music.songmid) return {};
         const res = await getMusicPlayUrl(music.songmid);
         music.url = res.data.url;
         console.log("播放音乐:", music.name, music.singer, res);
-        player.src = music.url;
+        player.src = music.url ?? "";
         player.currentTime = 0;
         if (state.isPlaying && player.src) player.play();
 
@@ -162,7 +163,7 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
                         else break;
                     }
                 }
-                onTimeUpdate?.(state.currentMusic, player.currentTime, lyricIndex);
+                onTimeUpdate?.(state.currentMusic ?? undefined, player.currentTime, lyricIndex);
                 return { currentTime: player.currentTime, lyricIndex };
             });
         };
@@ -180,8 +181,21 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
             const state = get();
             const order = state.playOrder;
             const currentMusic = state.currentMusic;
+            if (!currentMusic?.songmid) return;
             await deleteMusicFromDB(currentMusic.songmid);
-            state.musicList = state.musicList.filter(m => m.songmid !== currentMusic.songmid);
+            const newMusicList = state.musicList.filter(m => m.songmid !== currentMusic.songmid);
+            if (newMusicList.length === 0) {
+                set({
+                    isPlaying: false,
+                    currentMusic: null,
+                    playlistIndex: 0,
+                    currentTime: 0,
+                    duration: 0,
+                    lyricIndex: -1,
+                    musicList: newMusicList,
+                });
+                return;
+            };
             if (order === 0) {
                 get().nextMusic();
             } else if (order === 1) {
@@ -206,7 +220,7 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
         boundError = (e) => {
             console.error("audio error:", e.message);
             const state = get();
-            onError?.(state.currentMusic);
+            onError?.(state.currentMusic ?? undefined);
             if (state.musicList.length > 1) get().nextMusic();
         };
         player.addEventListener("error", boundError);
@@ -231,12 +245,14 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
     changeMusic: async (music, onAfter) => {
         const state = get();
         if (!music) {
-            state.Player.pause();
-            state.Player.currentTime = 0;
-            state.Player.src = "";
+            if (state.Player) {
+                state.Player.pause();
+                state.Player.currentTime = 0;
+                state.Player.src = "";
+            }
             return set({ currentMusic: null, isPlaying: false, playlistIndex: 0, currentTime: 0 });
         }
-        if (!state.Player || !music) return;
+        if (!state.Player) return;
         const targetIndex = state.musicList.findIndex(s => s.songmid === music.songmid);
         if (targetIndex === -1) return;
         set(await applyPlayMusic(state, targetIndex, state.Player));

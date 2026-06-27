@@ -8,13 +8,20 @@ export interface MyModalExpose {
 }
 
 interface MyModalProps {
-  ref: React.RefObject<MyModalExpose>;
+  ref: React.RefObject<MyModalExpose | null>;
   onOk?: () => void;
   onCancel?: () => void;
   title: string;
+  children?: React.ReactNode;
 }
 
-const MyModal: FC<MyModalProps> = ({ ref, onOk, onCancel, title }) => {
+const MyModal: FC<MyModalProps> = ({
+  ref,
+  onOk,
+  onCancel,
+  title,
+  children,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const showModal = () => {
@@ -67,9 +74,7 @@ const MyModal: FC<MyModalProps> = ({ ref, onOk, onCancel, title }) => {
           </div>
         }
       >
-        <p>Some contents...</p>
-        <p>Some contents...</p>
-        <p>Some contents...</p>
+        {children}
       </Modal>
     </>
   );

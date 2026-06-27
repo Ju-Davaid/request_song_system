@@ -32,7 +32,7 @@ const Search = () => {
     JSON.parse(localStorage.getItem("historyList") ?? "[]"),
   );
   const musicList = usePlayerStore((state) => state.musicList);
-  const message = useMessage();
+  const { message } = useMessage();
   // 点击外部关闭弹窗
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -94,14 +94,13 @@ const Search = () => {
     },
     [debouncedSearch],
   );
+  // 点歌处理
   const handelAddMusic = useCallback(
     async (item: SearchVo) => {
       const newHistoryList = [...localHistoryList];
       newHistoryList.unshift(`${item.name} - ${item.singer}`);
-      console.log("newHistoryList", newHistoryList);
       const listArr = new Set(newHistoryList);
       let res = [...listArr];
-      console.log("res", res);
       if (res.length > 5) {
         res = res.splice(0, 5);
       }
@@ -114,15 +113,38 @@ const Search = () => {
       }
       try {
         await addMusicToDB(item);
-      } catch (error) {}
-      addMusic(item);
+        addMusic(item);
+        message.success("点歌成功");
+      } catch (error) {
+        message.error("点歌失败");
+      }
     },
     [musicList, localHistoryList],
+  );
+  // 从历史记录搜索
+  const handelSearchMusicByHistory = useCallback(
+    async (item: string) => {
+      setInputValue(item);
+      await fetchSearchData(item);
+    },
+    [inputValue, fetchSearchData],
+  );
+  // 清空历史记录
+  const handelClearHistory = useCallback(
+    () => {
+      setLocalHistoryList([]);
+      localStorage.setItem("historyList", JSON.stringify([]));
+    },
+    [setLocalHistoryList],
   );
 
   return (
     <>
-      <div className="relative z-10" ref={containerRef}>
+      <div
+        className="relative z-10"
+        ref={containerRef}
+        onClick={(e) => e.stopPropagation()}
+      >
         <Input
           value={inputValue}
           onChange={(event) => handleInputChange(event.target.value)}
@@ -144,11 +166,15 @@ const Search = () => {
               <>
                 <div className="flex justify-between items-center mb-2">
                   <span className="opacity-50 text-xs">点歌历史记录</span>
-                  <AiOutlineDelete className="opacity-50 text-xl cursor-pointer" />
+                  <AiOutlineDelete
+                    onClick={handelClearHistory}
+                    className="opacity-50 text-xl cursor-pointer"
+                  />
                 </div>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex flex-wrap gap-2 mb-2">
                   {localHistoryList.map((item, index) => (
                     <div
+                      onClick={() => handelSearchMusicByHistory(item)}
                       key={index}
                       className="flex gap-4 p-2 cursor-pointer items-center justify-between transition-colors duration-300 bg-[#353537] rounded-lg"
                     >
@@ -163,7 +189,7 @@ const Search = () => {
                 </div>
               </>
             )}
-            <div className="mt-4 flex justify-between items-center">
+            <div className="flex justify-between items-center">
               <span className="opacity-50 text-xs">搜索结果</span>
             </div>
             <div className="h-70 relative">
@@ -209,7 +235,6 @@ const Search = () => {
           </div>
         )}
       </div>
-      {message.contextHolder}
     </>
   );
 };

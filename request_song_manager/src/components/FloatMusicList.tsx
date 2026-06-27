@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useCallback, useEffect, useRef, type FC } from "react";
+import { useRef, type FC } from "react";
 import { IoIosClose, IoIosArrowBack, IoMdDownload } from "react-icons/io";
 import { List, Image, Popconfirm } from "antd";
 import VirtualList from "@rc-component/virtual-list";
@@ -7,7 +7,6 @@ import usePlayerStore from "@/store/player.store";
 import { AiOutlineDelete } from "react-icons/ai";
 import { formatSecondToTime } from "@/utils";
 import { FaPlay, FaPause } from "react-icons/fa";
-import type { MusicVo } from "@/types/Music";
 import playingImage from "@/assets/images/playing.gif";
 import Empty from "./Empty";
 import useOperateMusicList from "@/hooks/useOperateMusicList";
@@ -30,23 +29,12 @@ const FloatMusicList: FC<FloatMusicListProps> = ({
   const musicList = usePlayerStore((state) => state.musicList);
   const currentMusic = usePlayerStore((state) => state.currentMusic);
   const isPlaying = usePlayerStore((state) => state.isPlaying);
-  const togglePlay = usePlayerStore((state) => state.togglePlay);
-  const changeMusic = usePlayerStore((state) => state.changeMusic);
-  const setMusicList = usePlayerStore((state) => state.setMusicList);
-  const nextMusic = usePlayerStore((state) => state.nextMusic);
-  const { downloadMusic, MessageContextHolder, clearAll, deleteMusic } =
-    useOperateMusicList();
-  // 点击播放按钮
-  const handelPlay = useCallback(
-    (item: MusicVo) => {
-      if (item.songmid === currentMusic?.songmid) {
-        togglePlay();
-      } else {
-        changeMusic(item);
-      }
-    },
-    [isPlaying, currentMusic, togglePlay, changeMusic],
-  );
+  const {
+    downloadMusic,
+    clearAll,
+    deleteMusic,
+    toggleOrPauseMusic,
+  } = useOperateMusicList();
 
   return (
     <>
@@ -140,7 +128,7 @@ const FloatMusicList: FC<FloatMusicListProps> = ({
                                   <FaPause
                                     size={14}
                                     className={`${isPlaying ? "opacity-0" : "opacity-80"} relative z-2 group-hover:opacity-100 hover:opacity-100 transition-opacity duration-300 cursor-pointer`}
-                                    onClick={() => handelPlay(song)}
+                                    onClick={() => toggleOrPauseMusic(song)}
                                   />
                                   <img
                                     src={playingImage}
@@ -152,7 +140,7 @@ const FloatMusicList: FC<FloatMusicListProps> = ({
                                 <FaPlay
                                   size={14}
                                   className="opacity-80 hover:opacity-100 transition-opacity duration-300 cursor-pointer"
-                                  onClick={() => handelPlay(song)}
+                                  onClick={() => toggleOrPauseMusic(song)}
                                 />
                               )}
                             </div>
@@ -195,7 +183,7 @@ const FloatMusicList: FC<FloatMusicListProps> = ({
                           />
                         </div>
                         <div className="opacity-50">
-                          {formatSecondToTime(song.duration)}
+                          {formatSecondToTime(song.duration ?? 0)}
                         </div>
                       </div>
                     </List.Item>
@@ -206,7 +194,6 @@ const FloatMusicList: FC<FloatMusicListProps> = ({
           </div>
         </div>
       </motion.div>
-      {MessageContextHolder}
     </>
   );
 };

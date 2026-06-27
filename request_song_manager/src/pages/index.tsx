@@ -1,46 +1,32 @@
-import { useState } from 'react';
-import bgImage from "@/assets/images/background.jpeg"
-
-// 接口返回类型约束
-interface ResData {
-  code: number;
-  msg: string;
-}
+import { useState } from "react";
+import bgImage from "@/assets/images/background.jpeg";
+import useSocket from "@/hooks/useSocket";
+import useMessage from "@/hooks/useMessage";
+import { SocketRoleEnum } from "@/enum/SocketRoleEnum";
 
 const RequestSongPage = () => {
   // 输入框状态
-  const [songName, setSongName] = useState<string>('');
+  const [songName, setSongName] = useState<string>("");
+  const { requestSong } = useSocket({ role: SocketRoleEnum.USER });
+  const { message } = useMessage();
 
   // 点歌请求
   const handleOrderSong = async () => {
     const val = songName.trim();
     if (!val) return;
-
     try {
-      const res = await fetch('/api/request_song', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ songName: val }),
-      });
-
-      const data: ResData = await res.json();
-      if (data.code === 200) {
-        alert('点歌成功');
-        setSongName('');
-      } else {
-        alert(data.msg);
-      }
+      requestSong(val);
+      setSongName("");
+      message.success("点歌成功");
     } catch (err) {
-      console.error('点歌失败：', err);
-      alert('点歌失败，请稍后重试');
+      console.error("点歌失败：", err);
+      message.error("点歌失败，请稍后重试");
     }
   };
 
   // 回车触发点歌
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleOrderSong();
+    if (e.key === "Enter") handleOrderSong();
   };
 
   return (

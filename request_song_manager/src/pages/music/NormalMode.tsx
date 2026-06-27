@@ -32,7 +32,6 @@ const NormalMode = () => {
   );
   const {
     clearAll,
-    MessageContextHolder,
     batchDeleteMusic,
     batchDownloadMusic,
   } = useOperateMusicList();
@@ -137,7 +136,6 @@ const NormalMode = () => {
         </div>
         <Lyric classNames={{ root: "flex-1!", lyricContainer: "pr-5" }} />
       </div>
-      {MessageContextHolder}
     </>
   );
 };

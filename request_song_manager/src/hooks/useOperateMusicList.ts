@@ -8,7 +8,7 @@ import { clearMusicFromDB, deleteMusicFromDB, getMusicPlayUrl } from "@/api";
 import useMusicBatchOperateStore from "@/store/musicBatchOperate.store";
 
 const useOperateMusicList = () => {
-    const message = useMessage()
+    const { message } = useMessage()
     const musicList = usePlayerStore((state) => state.musicList);
     const setMusicList = usePlayerStore((state) => state.setMusicList);
     const changeMusic = usePlayerStore((state) => state.changeMusic);
@@ -20,12 +20,14 @@ const useOperateMusicList = () => {
     const isBatchDownloading = useMusicBatchOperateStore((state) => state.isBatchDownloading);
     const setIsBatchDeleting = useMusicBatchOperateStore((state) => state.setIsBatchDeleting);
     const setIsBatchDownloading = useMusicBatchOperateStore((state) => state.setIsBatchDownloading);
+    const isPlaying = usePlayerStore((state) => state.isPlaying);
+    const togglePlay = usePlayerStore((state) => state.togglePlay);
     // 下载音乐
     const downloadMusic = useCallback(async (music: MusicVo) => {
-        if (!music?.url) return message.warning("暂无下载链接");
-        const { url, name } = music;
+        if (!music.songmid) return;
         try {
-            await download(url, name);
+            const url = (await getMusicPlayUrl(music.songmid)).data.url;
+            await download(url, music.name);
             message.success("下载成功");
         } catch (err) {
             message.error("下载失败，请稍后重试");
@@ -46,6 +48,7 @@ const useOperateMusicList = () => {
     }, [])
     // 删除音乐
     const deleteMusic = useCallback(async (item: MusicVo) => {
+        if (!item.songmid) return;
         try {
             await deleteMusicFromDB(item.songmid);
             const newMusicList = musicList.filter((i) => i.songmid !== item.songmid);
@@ -66,13 +69,15 @@ const useOperateMusicList = () => {
     const batchDeleteMusic = useCallback(async () => {
         if (isBatchDeleting) return message.warning("请稍后再试");
         if (checkedMusicList.length === 0) return message.warning("请选择要删除的音乐");
-        const deleteList = musicList.filter((song) => checkedMusicList.includes(song.songmid));
+        const deleteList = musicList.filter((song) => song.songmid && checkedMusicList.includes(song.songmid));
         try {
             setIsBatchDeleting(true);
             for (const music of deleteList) {
-                await deleteMusicFromDB(music.songmid);
+                if (music.songmid) {
+                    await deleteMusicFromDB(music.songmid);
+                }
             }
-            const newMusicList = musicList.filter((i) => !checkedMusicList.includes(i.songmid));
+            const newMusicList = musicList.filter((i) => !i.songmid || !checkedMusicList.includes(i.songmid));
             if (newMusicList.length === 0) {
                 changeMusic(null);
                 setCurrentTime(0);
@@ -92,13 +97,12 @@ const useOperateMusicList = () => {
     const batchDownloadMusic = useCallback(async () => {
         if (isBatchDownloading) return message.warning("请稍后再试");
         if (checkedMusicList.length === 0) return message.warning("请选择要下载的音乐");
-        const downloadList = musicList.filter((song) => checkedMusicList.includes(song.songmid));
+        const downloadList = musicList.filter((song) => song.songmid && checkedMusicList.includes(song.songmid));
         try {
-            setIsBatchDownloading(true);
             setIsBatchDownloading(true);
             for (const music of downloadList) {
                 const { url, name } = music;
-                const downloadUrl: string = url ?? (await getMusicPlayUrl(music.songmid)).data.url;
+                const downloadUrl: string = url ?? (await getMusicPlayUrl(music.songmid!)).data.url;
                 await download(downloadUrl, name);
             }
             message.success("批量下载成功");
@@ -108,15 +112,26 @@ const useOperateMusicList = () => {
         } finally {
             setIsBatchDownloading(false);
         }
-    }, [checkedMusicList, downloadMusic, musicList, isBatchDownloading, setIsBatchDownloading, isBatchDownloading])
+    }, [checkedMusicList, musicList, isBatchDownloading, setIsBatchDownloading])
+    // 点击播放按钮
+    const toggleOrPauseMusic = useCallback(
+        (item: MusicVo) => {
+            if (item.songmid === currentMusic?.songmid) {
+                togglePlay();
+            } else {
+                changeMusic(item);
+            }
+        },
+        [isPlaying, currentMusic, togglePlay, changeMusic],
+    );
 
     return {
         clearAll,
         downloadMusic,
         deleteMusic,
-        MessageContextHolder: message.contextHolder,
         batchDeleteMusic,
-        batchDownloadMusic
+        batchDownloadMusic,
+        toggleOrPauseMusic,
     }
 }
 
