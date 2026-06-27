@@ -77,9 +77,8 @@ export const applyPlayMusic = async (
         console.log("播放音乐:", music.name, music.singer, res);
         player.src = music.url ?? "";
         player.currentTime = 0;
-        if (player.src) player.play();
+        if (player && player.src && state.isPlaying) player.play();
         return {
-            isPlaying: true,
             playlistIndex: targetIndex,
             currentMusic: music,
             currentTime: 0,
@@ -142,7 +141,6 @@ const usePlayerStore = create<PlayerStore>((set, get) => ({
         get().destroyPlayer();
         set({ Player: player });
         player.volume = get().volume;
-        player.autoplay = true;
 
         // 元数据加载
         player.addEventListener(

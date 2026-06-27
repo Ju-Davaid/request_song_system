@@ -5,6 +5,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import useMessage from "@/hooks/useMessage";
 import { useNavigate } from "react-router-dom";
 import { useUserInfoStore } from "@/store/userInfo.store";
+import BlurBackground from "@/components/BlurBackground";
+import bg from "@/assets/images/background.jpeg";
 
 const LoginPage = () => {
   const [qrCode, setQrCode] = useState<QRCodeVO | null>(null);
@@ -34,7 +36,9 @@ const LoginPage = () => {
           inquiryTimer.current = undefined;
         }
         if (checkRes.session) {
-          const { data: userInfo } = await getUserInfo(checkRes.session.loginUin);
+          const { data: userInfo } = await getUserInfo(
+            checkRes.session.loginUin,
+          );
           const newInfo = {
             username: userInfo.nickname,
             avatar: userInfo.avatar_url,
@@ -100,16 +104,17 @@ const LoginPage = () => {
   }, [qrCodeStatus, validateQrCode]);
   return (
     <>
-      <div className="w-screen h-screen flex justify-center items-center bg-white">
-        <div className="w-96 h-96 flex flex-col items-center justify-center">
+      <BlurBackground imageSrc={bg} />
+      <div className="w-screen h-screen flex justify-center items-center relative z-10">
+        <div className="w-96 h-96 flex flex-col items-center justify-center text-white">
           <div className="text-2xl font-bold">请使用QQ二维码登录</div>
           <div className="text-lg mb-3">扫描QQ二维码即可登录</div>
           <QRCode
-        src={qrCode?.img ?? ""}
-        size={180}
-        status={qrCodeStatus}
-        onReload={reloadQrCode}
-      />
+            src={qrCode?.img ?? ""}
+            size={180}
+            status={qrCodeStatus}
+            onReload={reloadQrCode}
+          />
         </div>
       </div>
     </>

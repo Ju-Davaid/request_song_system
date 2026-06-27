@@ -131,40 +131,49 @@ const StationPage = () => {
             {/* 用户信息和配置容器 */}
             <div className="flex gap-4 items-center">
               {/* 用户信息 */}
-              <Popover
-                trigger="hover"
-                color="#29292B"
-                classNames={{
-                  container: "p-0! rounded-md! overflow-hidden",
-                }}
-                content={
-                  <div className="w-30 py-2 text-white">
-                    <div
-                      onClick={handelLogout}
-                      className="flex py-2 cursor-pointer hover:bg-[#353537] transition-colors duration-300 px-3.5 gap-4 items-center text-xs"
-                    >
-                      <IoMdExit size={16} />
-                      退出登录
+              {userInfo ? (
+                <Popover
+                  trigger="hover"
+                  color="#29292B"
+                  classNames={{
+                    container: "p-0! rounded-md! overflow-hidden",
+                  }}
+                  content={
+                    <div className="w-30 py-2 text-white">
+                      <div
+                        onClick={handelLogout}
+                        className="flex py-2 cursor-pointer hover:bg-[#353537] transition-colors duration-300 px-3.5 gap-4 items-center text-xs"
+                      >
+                        <IoMdExit size={16} />
+                        退出登录
+                      </div>
                     </div>
+                  }
+                >
+                  <div className="flex gap-2 items-center cursor-pointer">
+                    <div className="size-7.5 relative">
+                      <img
+                        src={avatar}
+                        alt="用户头像"
+                        className="absolute left-0 top-0 w-full h-full object-cover rounded-full "
+                      />
+                      <img
+                        className="absolute right-0 bottom-0 z-1 size-3"
+                        src={qqLogin}
+                        alt=""
+                      />
+                    </div>
+                    <div className="text-sm opacity-50">{username}</div>
                   </div>
-                }
-              >
-                <div className="flex gap-2 items-center cursor-pointer">
-                  <div className="size-7.5 relative">
-                    <img
-                      src={avatar}
-                      alt="用户头像"
-                      className="absolute left-0 top-0 w-full h-full object-cover rounded-full "
-                    />
-                    <img
-                      className="absolute right-0 bottom-0 z-1 size-3"
-                      src={qqLogin}
-                      alt=""
-                    />
-                  </div>
-                  <div className="text-[14px] opacity-50">{username}</div>
+                </Popover>
+              ) : (
+                <div
+                  onClick={() => navigate("/music/login", { replace: true })}
+                  className="text-white text-sm opacity-50 cursor-pointer hover:opacity-100 transition-opacity duration-300"
+                >
+                  登录
                 </div>
-              </Popover>
+              )}
               {/* 设置 */}
               {/* <AiFillSetting
                 onClick={() => myModalRef.current?.show()}

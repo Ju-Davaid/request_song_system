@@ -1,7 +1,7 @@
 import { Input } from "antd";
 import { useCallback, useState, useRef, useEffect } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import { debounce } from "@/utils";
+import { debounce, isInclude } from "@/utils";
 import { addMusicToDB, getSearchResult } from "@/api";
 import type { SearchVo } from "@/types/Music";
 import usePlayerStore from "@/store/player.store";
@@ -130,13 +130,10 @@ const Search = () => {
     [inputValue, fetchSearchData],
   );
   // 清空历史记录
-  const handelClearHistory = useCallback(
-    () => {
-      setLocalHistoryList([]);
-      localStorage.setItem("historyList", JSON.stringify([]));
-    },
-    [setLocalHistoryList],
-  );
+  const handelClearHistory = useCallback(() => {
+    setLocalHistoryList([]);
+    localStorage.setItem("historyList", JSON.stringify([]));
+  }, [setLocalHistoryList]);
 
   return (
     <>
@@ -223,9 +220,17 @@ const Search = () => {
                       ></div>
                       <button
                         onClick={() => handelAddMusic(song)}
-                        className="py-0.5 w-12  rounded-full text-[12px] cursor-pointer bg-primary"
+                        className={`py-0.5 w-12 rounded-full text-[12px] cursor-pointer ${isInclude(musicList, (item) => item.songmid && song.songmid && item.songmid === song.songmid) ? "bg-gray-400" : "bg-primary"}`}
                       >
-                        点歌
+                        {isInclude(
+                          musicList,
+                          (item) =>
+                            item.songmid &&
+                            song.songmid &&
+                            item.songmid === song.songmid,
+                        )
+                          ? "已点歌"
+                          : "点歌"}
                       </button>
                     </div>
                   )}
