@@ -10,7 +10,7 @@ dotenv.config();
 import musicRouter from './router/musicRouter';
 import userRouter from './router/userRouter';
 // 音乐API端口
-const musicApiPort = process.env.MUSIC_API_PORT ?? '3001';
+const musicApiPort = process.env.MUSIC_API_PORT ?? '3200';
 
 //  接入QQ音乐API
 const qqMusicPath = path.join(__dirname, '../', 'node_modules', '@sansenjian/qq-music-api', 'dist', 'app.js');

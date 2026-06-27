@@ -41,6 +41,15 @@ export const isSameDuration = (duration: number, playerDuration: number) => {
     return durationDiff <= 5;
 }
 
+/**
+ * @param target 数组
+ * @param condition 条件函数
+ * @returns 是否包含符合条件的元素
+ */
+export const isInclude = (target: any[], condition: (item: any) => boolean) => {
+    return target.some(condition);
+}
+
 export { loadFont } from './loadFont';
 export * from '../hooks/useBuildTableRenderData';
 export { debounce } from './debounce';

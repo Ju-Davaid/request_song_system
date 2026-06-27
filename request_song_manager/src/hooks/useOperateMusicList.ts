@@ -22,6 +22,7 @@ const useOperateMusicList = () => {
     const setIsBatchDownloading = useMusicBatchOperateStore((state) => state.setIsBatchDownloading);
     const isPlaying = usePlayerStore((state) => state.isPlaying);
     const togglePlay = usePlayerStore((state) => state.togglePlay);
+    const setCheckedList = useMusicBatchOperateStore((state) => state.setCheckedList);
     // 下载音乐
     const downloadMusic = useCallback(async (music: MusicVo) => {
         if (!music.songmid) return;
@@ -85,6 +86,7 @@ const useOperateMusicList = () => {
                 if (checkedMusicList.includes(currentMusic?.songmid ?? "")) nextMusic();
             }
             setMusicList(newMusicList);
+            setCheckedList([]);
             message.success("批量删除成功");
         } catch (err) {
             console.error(err);
@@ -105,6 +107,7 @@ const useOperateMusicList = () => {
                 const downloadUrl: string = url ?? (await getMusicPlayUrl(music.songmid!)).data.url;
                 await download(downloadUrl, name);
             }
+            setCheckedList([]);
             message.success("批量下载成功");
         } catch (err) {
             console.error(err);

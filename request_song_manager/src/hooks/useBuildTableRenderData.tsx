@@ -143,43 +143,42 @@ export const useBuildTableRenderData = () => {
         render: (song: DataType, isPlaying: boolean = false) => (
           <Popover
             trigger="hover"
+            color="#29292B"
             classNames={{
-              container: "p-0!",
+              container: "p-0! rounded-md! overflow-hidden",
             }}
             content={
-              <div className="w-30 text-[#121c37] py-2">
+              <div className="w-30 py-2 text-white">
                 <div
                   onClick={() => toggleOrPauseMusic(song)}
-                  className="flex py-2 cursor-pointer hover:bg-[#F3F4F5] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
+                  className="flex py-2 cursor-pointer hover:bg-[#353537] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
                 >
                   {isPlaying ? (
                     <>
-                      <FaPause /> 暂停
+                      <FaPause className="ml-1" /> 暂停
                     </>
                   ) : (
                     <>
-                      <FaPlay /> 播放
+                      <FaPlay className="ml-1" /> 播放
                     </>
                   )}
                 </div>
                 <div
                   onClick={() => deleteMusic(song)}
-                  className="flex py-2 cursor-pointer hover:bg-[#F3F4F5] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
+                  className="flex py-2 cursor-pointer hover:bg-[#353537] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
                 >
                   <AiOutlineDelete size={18} /> 删除
                 </div>
                 <div
                   onClick={() => downloadMusic(song)}
-                  className="flex py-2 cursor-pointer hover:bg-[#F3F4F5] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
+                  className="flex py-2 cursor-pointer hover:bg-[#353537] transition-colors duration-300 px-3.5 gap-5 items-center text-xs"
                 >
                   <IoMdDownload size={18} /> 下载
                 </div>
               </div>
             }
           >
-            <div className="relative w-full h-full text-white">
-              <IoIosMore className="text-2xl cursor-pointer my-0 mx-auto" />
-            </div>
+            <IoIosMore className="text-2xl cursor-pointer my-0 mx-auto text-white" />
           </Popover>
         ),
       },

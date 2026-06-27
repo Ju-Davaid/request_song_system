@@ -1,5 +1,5 @@
 import { useUserInfoStore } from "@/store/userInfo.store";
-import { AiFillSetting } from "react-icons/ai";
+// import { AiFillSetting } from "react-icons/ai";
 import MyModal from "@/components/MyModal";
 import type { MyModalExpose } from "@/components/MyModal";
 import qqLogin from "@/assets/images/login_qq.png";
@@ -20,16 +20,21 @@ import { getMusicListFromDB } from "@/api";
 import useMessage from "@/hooks/useMessage";
 import useSocket from "@/hooks/useSocket";
 import { SocketRoleEnum } from "@/enum/SocketRoleEnum";
+import { Popover } from "antd";
+import { IoMdExit } from "react-icons/io";
+import { useNavigate } from "react-router-dom";
 
 /** 点歌台页面 */
 const StationPage = () => {
   useSocket({ role: SocketRoleEnum.ADMIN });
+  const navigate = useNavigate();
   // 当前封面位置
   const coverPosition = useCoverStore((state) => state.coverPosition);
   // 设置弹窗引用
   const myModalRef = useRef<MyModalExpose | null>(null);
   // 用户信息
   const userInfo = useUserInfoStore((state) => state.userInfo);
+  const setUserInfo = useUserInfoStore((state) => state.setUserInfo);
   const avatar = userInfo?.avatar ?? "";
   const username = userInfo?.username ?? "";
   // 音乐播放器引用
@@ -43,8 +48,6 @@ const StationPage = () => {
   const setMusicList = usePlayerStore((state) => state.setMusicList);
   // 当前播放音乐
   const currentMusic = usePlayerStore((state) => state.currentMusic);
-  // 添加音乐
-  // const addMusic = usePlayerStore((state) => state.addMusic);
   // 是否正在播放
   const isPlaying = usePlayerStore((state) => state.isPlaying);
   // 加载状态
@@ -90,6 +93,11 @@ const StationPage = () => {
       }, 500);
     });
   }, []);
+  const handelLogout = useCallback(() => {
+    setUserInfo(null);
+    localStorage.removeItem("userInfo");
+    navigate("/music/login", { replace: true });
+  }, []);
   return (
     <>
       <LoadingPage isVisible={!isLoaded} />
@@ -123,26 +131,45 @@ const StationPage = () => {
             {/* 用户信息和配置容器 */}
             <div className="flex gap-4 items-center">
               {/* 用户信息 */}
-              <div className="flex gap-2 items-center">
-                <div className="size-7.5 relative">
-                  <img
-                    src={avatar}
-                    alt="用户头像"
-                    className="absolute left-0 top-0 w-full h-full object-cover rounded-full "
-                  />
-                  <img
-                    className="absolute right-0 bottom-0 z-1 size-3"
-                    src={qqLogin}
-                    alt=""
-                  />
+              <Popover
+                trigger="hover"
+                color="#29292B"
+                classNames={{
+                  container: "p-0! rounded-md! overflow-hidden",
+                }}
+                content={
+                  <div className="w-30 py-2 text-white">
+                    <div
+                      onClick={handelLogout}
+                      className="flex py-2 cursor-pointer hover:bg-[#353537] transition-colors duration-300 px-3.5 gap-4 items-center text-xs"
+                    >
+                      <IoMdExit size={16} />
+                      退出登录
+                    </div>
+                  </div>
+                }
+              >
+                <div className="flex gap-2 items-center cursor-pointer">
+                  <div className="size-7.5 relative">
+                    <img
+                      src={avatar}
+                      alt="用户头像"
+                      className="absolute left-0 top-0 w-full h-full object-cover rounded-full "
+                    />
+                    <img
+                      className="absolute right-0 bottom-0 z-1 size-3"
+                      src={qqLogin}
+                      alt=""
+                    />
+                  </div>
+                  <div className="text-[14px] opacity-50">{username}</div>
                 </div>
-                <div className="text-[14px] opacity-50">{username}</div>
-              </div>
+              </Popover>
               {/* 设置 */}
-              <AiFillSetting
+              {/* <AiFillSetting
                 onClick={() => myModalRef.current?.show()}
                 className="cursor-pointer text-2xl opacity-50 hover:opacity-100 transition-opacity duration-300"
-              />
+              /> */}
             </div>
           </header>
           {/* 内容容器 */}
