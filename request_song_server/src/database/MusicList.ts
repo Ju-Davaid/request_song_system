@@ -63,7 +63,7 @@ const initModel = () => {
         sequelize: seq,
         modelName: 'MusicList',
         tableName: 'music',
-        timestamps: false,
+        timestamps: true,
     });
 };
 
@@ -148,7 +148,7 @@ export class MusicListDB {
     public async getAllMusic(): Promise<MusicList[]> {
         await this.checkInit();
         return await MusicList.findAll({
-            order: [['similarity', 'DESC']],
+            order: [['createdAt', 'ASC']],
         });
     }
 

@@ -58,12 +58,11 @@ userRouter.post("/addMusic", async (req, res) => {
 // 获取歌曲列表
 userRouter.get("/getMusicList", async (req, res) => {
     try {
-        const musicList = (await MusicListDB.getInstance().getAllMusic()).map((item) => ({
+        const musicList = (await MusicListDB.getInstance().getAllMusic())
+        const parsedMusicList = musicList.map((item) => ({
             ...item.dataValues,
-            lyric: JSON.parse(item.lyric?.toString() ?? '[]')
         }));
-
-        res.status(200).json(ResponseViewObject.success(musicList));
+        res.status(200).json(ResponseViewObject.success(parsedMusicList));
     } catch (err) {
         console.error('获取歌曲列表失败:', err);
         res.status(500).send(ResponseViewObject.error('获取歌曲列表失败'));

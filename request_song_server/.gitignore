@@ -1,7 +1,13 @@
+# 依赖包目录
 node_modules/**
+# 包管理器锁文件（按需保留一种，其余忽略）
 pnpm-lock.yaml
 package-lock.json
-/public/**
+# 编译输出产物
 dist/**
-music.db
+# 静态公共资源（如本地存放音乐/临时文件）
+/public/**
+# 二进制程序目录
 bin/**
+# 本地数据库文件
+music.db
