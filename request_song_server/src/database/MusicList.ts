@@ -1,179 +1,149 @@
-import { DataTypes, Model, Optional } from 'sequelize';
-import { Lyric, MusicVo } from '../entity/vo/MusicVo';
-import seq from './db';
+ import { readFile, writeFile } from 'fs/promises';
+import { join } from 'path';
+import { MusicVo } from '../entity/vo/MusicVo';
+import isFileExist from '../utils/isFileExist';
 
-// 定义创建歌曲时的可选字段
-export interface MusicCreationAttributes extends Optional<MusicVo, 'url' | 'vip' | 'cover' | 'lyric'> { }
-
-// 定义 MusicList 模型类
-class MusicList extends Model<MusicVo, MusicCreationAttributes> implements MusicVo {
-    name!: string;
-    singer!: string;
-    url?: string;
-    songmid!: string;
-    duration!: number;
-    similarity!: number;
-    vip?: boolean;
-    cover?: string;
-    lyric?: Lyric[];
+ export interface MusicCreationAttributes extends Partial<MusicVo> {
+    name: string;
+    singer: string;
+    songmid: string;
+    duration: number;
+    similarity: number;
 }
 
+ export interface MusicData extends MusicVo {
+    createdAt?: string;
+    updatedAt?: string;
+}
 
-// 初始化模型
-const initModel = () => {
-    MusicList.init({
-        name: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        singer: {
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        url: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        songmid: {
-            primaryKey: true,
-            type: DataTypes.STRING,
-            allowNull: false,
-        },
-        duration: {
-            type: DataTypes.INTEGER,
-            allowNull: false,
-        },
-        similarity: {
-            type: DataTypes.FLOAT,
-            allowNull: false,
-        },
-        vip: {
-            type: DataTypes.BOOLEAN,
-            allowNull: true,
-        },
-        cover: {
-            type: DataTypes.STRING,
-            allowNull: true,
-        },
-        lyric: {
-            type: DataTypes.JSON,
-            allowNull: true,
-        },
-    }, {
-        sequelize: seq,
-        modelName: 'MusicList',
-        tableName: 'music',
-        timestamps: true,
-    });
-};
-
-// 工具类
-export class MusicListDB {
+ export class MusicListDB {
     private static instance: MusicListDB;
+    private readonly filePath: string;
+    private data: MusicData[] = [];
     private initialized = false;
 
-    private constructor() { }
+    private constructor() {
+        this.filePath = join(process.cwd(), 'music.json');
+    }
 
-    // 单例模式获取实例
     public static getInstance(): MusicListDB {
         return MusicListDB.instance ??= new MusicListDB();
     }
 
-    // 初始化数据库和模型
     private async init(): Promise<void> {
         if (this.initialized) return;
-        initModel();
-        await seq.sync();
-        this.initialized = true;
-        console.log('MusicList database initialized');
-    }
-
-    // 批量添加或更新歌曲
-    public async upsertMusic(music: MusicCreationAttributes): Promise<MusicList> {
-        await this.checkInit();
-        const [musicList] = await MusicList.upsert(music);
-        return musicList;
-    }
-
-    // 批量添加或更新歌曲
-    public async upsertMusicBatch(musicList: MusicCreationAttributes[]): Promise<MusicList[]> {
-        await this.checkInit();
-        const results: MusicList[] = [];
-        for (const music of musicList) {
-            const [result] = await MusicList.upsert(music);
-            results.push(result);
+        const fileExists = await isFileExist(this.filePath);
+        if (fileExists) {
+            try {
+                const content = await readFile(this.filePath, 'utf-8');
+                this.data = JSON.parse(content);
+            } catch {
+                this.data = [];
+                await this.save();
+            }
+        } else {
+            this.data = [];
+            await this.save();
         }
-        return results;
+        this.initialized = true;
+        console.log('MusicList JSON database initialized');
     }
 
-    // 根据 songmid 删除歌曲
-    public async deleteMusic(songmid: string): Promise<boolean> {
-        await this.checkInit();
-        const deleted = await MusicList.destroy({
-            where: { songmid },
-        });
-        return deleted > 0;
+    private async save(): Promise<void> {
+        const content = JSON.stringify(this.data, null, 2);
+        const tempPath = this.filePath + '.tmp';
+        await writeFile(tempPath, content, 'utf-8');
+        const fs = await import('fs');
+        fs.default.renameSync(tempPath, this.filePath);
     }
 
-    // 批量删除歌曲
-    public async deleteMusicBatch(songmids: string[]): Promise<number> {
-        await this.checkInit();
-        const deleted = await MusicList.destroy({
-            where: { songmid: songmids },
-        });
-        return deleted;
-    }
-
-    // 清空所有歌曲
-    public async clearAll(): Promise<void> {
-        await this.checkInit();
-        await MusicList.destroy({ truncate: true });
-    }
-
-    // 根据 songmid 获取歌曲
-    public async getMusicBySongmid(songmid: string): Promise<MusicList | null> {
-        await this.checkInit();
-        return await MusicList.findByPk(songmid);
-    }
-
-    // 批量获取歌曲
-    public async getMusicBySongmids(songmids: string[]): Promise<MusicList[]> {
-        await this.checkInit();
-        return await MusicList.findAll({
-            where: { songmid: songmids },
-        });
-    }
-
-    // 获取所有歌曲
-    public async getAllMusic(): Promise<MusicList[]> {
-        await this.checkInit();
-        return await MusicList.findAll({
-            order: [['createdAt', 'ASC']],
-        });
-    }
-
-    // 获取歌曲数量
-    public async getCount(): Promise<number> {
-        await this.checkInit();
-        return await MusicList.count();
-    }
-
-    // 按相似度获取前N首歌曲
-    public async getTopMusic(limit: number = 10): Promise<MusicList[]> {
-        await this.checkInit();
-        return await MusicList.findAll({
-            order: [['similarity', 'DESC']],
-            limit,
-        });
-    }
-
-    // 检查是否已初始化
     private async checkInit(): Promise<void> {
         if (!this.initialized) {
             await this.init();
         }
     }
-}
 
-// 导出单例
-export default MusicListDB.getInstance();
+    public async upsertMusic(music: MusicCreationAttributes): Promise<MusicData> {
+        await this.checkInit();
+        const index = this.data.findIndex(item => item.songmid === music.songmid);
+        const now = new Date().toISOString();
+        
+        if (index >= 0) {
+            this.data[index] = { ...this.data[index], ...music, updatedAt: now };
+        } else {
+            this.data.push({ ...music, createdAt: now, updatedAt: now });
+        }
+        
+        await this.save();
+        return this.data[index >= 0 ? index : this.data.length - 1];
+    }
+
+    public async upsertMusicBatch(musicList: MusicCreationAttributes[]): Promise<MusicData[]> {
+        await this.checkInit();
+        const results: MusicData[] = [];
+        for (const music of musicList) {
+            const result = await this.upsertMusic(music);
+            results.push(result);
+        }
+        return results;
+    }
+
+    public async deleteMusic(songmid: string): Promise<boolean> {
+        await this.checkInit();
+        const initialLength = this.data.length;
+        this.data = this.data.filter(item => item.songmid !== songmid);
+        if (this.data.length !== initialLength) {
+            await this.save();
+            return true;
+        }
+        return false;
+    }
+
+    public async deleteMusicBatch(songmids: string[]): Promise<number> {
+        await this.checkInit();
+        const initialLength = this.data.length;
+        const songmidSet = new Set(songmids);
+        this.data = this.data.filter(item => !songmidSet.has(item.songmid));
+        const deleted = initialLength - this.data.length;
+        if (deleted > 0) {
+            await this.save();
+        }
+        return deleted;
+    }
+
+    public async clearAll(): Promise<void> {
+        await this.checkInit();
+        this.data = [];
+        await this.save();
+    }
+
+    public async getMusicBySongmid(songmid: string): Promise<MusicData | null> {
+        await this.checkInit();
+        return this.data.find(item => item.songmid === songmid) || null;
+    }
+
+    public async getMusicBySongmids(songmids: string[]): Promise<MusicData[]> {
+        await this.checkInit();
+        const songmidSet = new Set(songmids);
+        return this.data.filter(item => songmidSet.has(item.songmid));
+    }
+
+    public async getAllMusic(): Promise<MusicData[]> {
+        await this.checkInit();
+        return [...this.data].sort((a, b) => 
+            new Date(a.createdAt || 0).getTime() - new Date(b.createdAt || 0).getTime()
+        );
+    }
+
+    public async getCount(): Promise<number> {
+        await this.checkInit();
+        return this.data.length;
+    }
+
+    public async getTopMusic(limit: number = 10): Promise<MusicData[]> {
+        await this.checkInit();
+        return [...this.data]
+            .sort((a, b) => b.similarity - a.similarity)
+            .slice(0, limit);
+    }
+}
